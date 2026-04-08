@@ -15,8 +15,4 @@ class Admin extends Authenticatable
         'password'
     ];
 
-
-    function test() {
-        return 3;
-    }
 }
