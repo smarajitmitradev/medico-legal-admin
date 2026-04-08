@@ -19,5 +19,9 @@ class Admin extends Authenticatable
     function test() {
         return 1;
     }
+
+    function test12() {
+        return 1;
+    }
 }
 
