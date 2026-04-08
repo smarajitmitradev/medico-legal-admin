@@ -14,4 +14,10 @@ class Admin extends Authenticatable
     protected $hidden = [
         'password'
     ];
+
+
+    function test() {
+        return 1;
+    }
 }
+
