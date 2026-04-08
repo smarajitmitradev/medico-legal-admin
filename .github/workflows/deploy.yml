@@ -1,4 +1,4 @@
-name: 🚀 Deploy Laravel
+name: Deploy Laravel
 
 on:
 push:
@@ -10,19 +10,20 @@ jobs:
 deploy:
 runs-on: ubuntu-latest
 
-```
 steps:
-  - name: 🔑 Setup SSH
+  - name: Setup SSH
     run: |
       mkdir -p ~/.ssh
       echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
       chmod 600 ~/.ssh/id_rsa
 
-  - name: 🚀 Deploy to Server
+  - name: Deploy to Server
     run: |
       ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
 
-      if [ "${GITHUB_REF##*/}" = "main" ]; then
+      BRANCH=${GITHUB_REF##*/}
+
+      if [ "$BRANCH" = "main" ]; then
         cd ~/domains/lawcription.in/public_html/medico-legal-admin/main
 
         git pull origin main
@@ -32,7 +33,7 @@ steps:
         php artisan migrate --force
         php artisan config:cache
 
-      elif [ "${GITHUB_REF##*/}" = "staging" ]; then
+      elif [ "$BRANCH" = "staging" ]; then
         cd ~/domains/lawcription.in/public_html/medico-legal-admin/staging
 
         git pull origin staging
@@ -45,4 +46,3 @@ steps:
       fi
 
       EOF
-```
