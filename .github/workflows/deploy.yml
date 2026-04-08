@@ -1,0 +1,32 @@
+name: Auto Deploy Laravel
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            if [ "${{ github.ref_name }}" == "staging" ]; then
+              cd public_html/medico-legal-admin/staging
+              git pull origin staging
+            else
+              cd public_html/medico-legal-admin/main
+              git pull origin main
+            fi
+
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan cache:clear
