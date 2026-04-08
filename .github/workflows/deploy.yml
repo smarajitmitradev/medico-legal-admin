@@ -1,0 +1,46 @@
+name: Deploy Laravel
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Deploy to Server
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p ${{ secrets.PORT }} ${{ secrets.USER }}@${{ secrets.HOST }} << EOF
+            if [ "${BRANCH_NAME}" = "main" ]; then
+              cd ~/domains/lawcription.in/public_html/medico-legal-admin/main
+              git pull origin main
+              composer install --no-dev --optimize-autoloader
+              php artisan migrate --force
+              php artisan config:cache
+              php artisan cache:clear
+              php artisan route:cache
+              php artisan view:cache
+
+            elif [ "${BRANCH_NAME}" = "staging" ]; then
+              cd ~/domains/lawcription.in/public_html/medico-legal-admin/staging
+              git pull origin staging
+              composer install
+              php artisan migrate --force
+              php artisan config:clear
+              php artisan cache:clear
+            fi
+          EOF
