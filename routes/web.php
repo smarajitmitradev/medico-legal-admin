@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ManagementController;
-use App\Http\Controllers\Admin\SubManagementController;
+use App\Http\Controllers\Admin\SubManageMentController;
 use App\Http\Controllers\Frontend\Auth\UserAuthController;
 use App\Http\Controllers\Admin\ModuleController;
 
@@ -36,7 +36,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/ckeditor', [DashboardController::class, 'ckeditor'])->name('ckeditor');
         Route::get('/markdown', [DashboardController::class, 'markdown'])->name('markdown');
         Route::resource('management', ManagementController::class);
-        Route::resource('submanagement', SubManagementController::class);
+        Route::resource('submanagement', SubManageMentController::class);
 
 
         Route::prefix('module/{sub_slug}')->group(function () {

@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
-class SubManagementController extends Controller
+class SubManageMentController extends Controller
 {
     // List all submanagements
     public function index()
