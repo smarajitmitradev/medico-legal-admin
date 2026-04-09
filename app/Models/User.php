@@ -28,7 +28,8 @@ class User extends Authenticatable implements JWTSubject
         'user_type',
         'is_profile_complete',
         'is_premium',
-        'premium_expiry_date'
+        'premium_expiry_date',
+        'img',
     ];
 
     /**

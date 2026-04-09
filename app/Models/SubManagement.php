@@ -19,7 +19,7 @@ class SubManagement extends Model
 
     public function contents()
     {
-        return $this->hasMany(ModuleContent::class);
+        return $this->hasMany(ModuleContent::class, 'submanagement_id');
     }
 
     public function management()
