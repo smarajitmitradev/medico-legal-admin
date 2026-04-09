@@ -42,7 +42,8 @@ class AuthController extends Controller
             'data' => [
                 'otp_sent' => true,
                 'expires_in_seconds' => 120,
-                'resend_after_seconds' => 30
+                'resend_after_seconds' => 30,
+                'otp' => $otp
             ]
         ]);
     }
