@@ -177,14 +177,14 @@ class AuthController extends Controller
     // ✅ Complete Profile
     public function completeProfile(Request $request)
     {
+        $user = auth('api')->user();
+
         $request->validate([
             'first_name' => 'required',
             'last_name'  => 'required',
-            'email'      => 'required|email',
+            'email'      => 'required|email|unique:users,email,' . $user->id,
             'user_type'  => 'required'
         ]);
-
-        $user = auth('api')->user();
 
         $user->update([
             'first_name' => $request->first_name,

@@ -15,6 +15,14 @@ class ManagementController extends Controller
     {
         $managements = Management::with('submanagements')->get();
 
+        $managements->map(function ($item) {
+            $item->image = $item->image
+                ? asset('uploads/' . $item->image)
+                : null;
+
+            return $item;
+        });
+
         return response()->json([
             'status' => true,
             'total_managements' => Management::count(),
