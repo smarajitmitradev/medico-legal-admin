@@ -30,6 +30,9 @@ class User extends Authenticatable implements JWTSubject
         'is_premium',
         'premium_expiry_date',
         'img',
+        'takeover_token',
+        'takeover_expires_at',
+        'refresh_token_expires_at',
     ];
 
     /**
@@ -39,7 +42,8 @@ class User extends Authenticatable implements JWTSubject
         'otp',
         'refresh_token',
         'remember_token',
-        'password', 
+        'password',
+        'takeover_expires_at' => 'datetime',
     ];
 
     /**
@@ -50,6 +54,7 @@ class User extends Authenticatable implements JWTSubject
         'premium_expiry_date' => 'datetime',
         'is_profile_complete' => 'boolean',
         'is_premium' => 'boolean',
+        'refresh_token_expires_at' => 'datetime',
     ];
 
     /**

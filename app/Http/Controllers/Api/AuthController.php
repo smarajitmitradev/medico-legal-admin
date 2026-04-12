@@ -76,14 +76,48 @@ class AuthController extends Controller
             ], 400);
         }
 
-        // Generate tokens
+        // ✅ DEVICE CHECK (NEW LOGIC)
+        if ($user->device_id && $user->device_id !== $request->device_id) {
+
+            $takeoverToken = Str::random(40);
+
+            $user->update([
+                'takeover_token' => $takeoverToken,
+                'takeover_expires_at' => now()->addMinutes(5)
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OTP verified. Confirmation required for new device.',
+                'data' => [
+                    'action_required' => 'confirm_device_takeover',
+                    'takeover_token' => $takeoverToken,
+                    'device' => [
+                        'device_id' => $request->device_id,
+                        'is_trusted' => false
+                    ],
+                    'user' => [
+                        'user_id' => $user->user_id,
+                        'mobile_number' => $user->mobile_number,
+                        'country_code' => $user->country_code,
+                        'is_profile_complete' => (bool) $user->is_profile_complete,
+                        'is_premium' => (bool) $user->is_premium
+                    ]
+                ]
+            ]);
+        }
+
+        // ✅ NORMAL LOGIN (NO CHANGE)
         $accessToken = auth('api')->login($user);
         $refreshToken = Str::random(64);
 
         $user->update([
             'otp' => null,
             'refresh_token' => $refreshToken,
-            'device_id' => $request->device_id
+            'refresh_token_expires_at' => now()->addDays(7), // 🔥 7 days expiry
+            'device_id' => $request->device_id,
+            'takeover_token' => null,
+            'takeover_expires_at' => null
         ]);
 
         return response()->json([
@@ -123,18 +157,40 @@ class AuthController extends Controller
 
         $user = User::where('refresh_token', $request->refresh_token)->first();
 
+        // ❌ Invalid token
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid refresh token'
+                'message' => 'Invalid refresh token',
+                'error' => ['code' => 'INVALID_REFRESH_TOKEN']
             ], 401);
         }
 
+        // ❌ Device mismatch
+        if ($user->device_id !== $request->device_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Device mismatch. Please login again.',
+                'error' => ['code' => 'DEVICE_MISMATCH']
+            ], 401);
+        }
+
+        // ❌ Token expired
+        if (!$user->refresh_token_expires_at || now()->gt($user->refresh_token_expires_at)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Refresh token expired. Please login again.',
+                'error' => ['code' => 'REFRESH_TOKEN_EXPIRED']
+            ], 401);
+        }
+
+        // ✅ Generate new tokens
         $newAccessToken = auth('api')->login($user);
         $newRefreshToken = Str::random(64);
 
         $user->update([
-            'refresh_token' => $newRefreshToken
+            'refresh_token' => $newRefreshToken,
+            'refresh_token_expires_at' => now()->addDays(7) // 🔥 reset expiry
         ]);
 
         return response()->json([
@@ -209,6 +265,68 @@ class AuthController extends Controller
                 'is_profile_complete' => true,
                 'is_premium' => (bool) $user->is_premium,
                 'premium_expiry_date' => $user->premium_expiry_date
+            ]
+        ]);
+    }
+
+    public function confirmDeviceTakeover(Request $request)
+    {
+        $request->validate([
+            'takeover_token' => 'required',
+            'device_id' => 'required'
+        ]);
+
+        $user = User::where('takeover_token', $request->takeover_token)->first();
+
+        if (!$user || !$user->takeover_expires_at || now()->gt($user->takeover_expires_at)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Takeover session expired. Please login again.',
+                'error' => [
+                    'code' => 'TAKEOVER_TOKEN_EXPIRED'
+                ]
+            ], 401);
+        }
+
+        // Count old sessions (basic simulation)
+        $revokedSessions = $user->device_id ? 1 : 0;
+
+        // Generate tokens
+        $accessToken = auth('api')->login($user);
+        $refreshToken = Str::random(64);
+
+        // Update user
+        $user->update([
+            'device_id' => $request->device_id,
+            'refresh_token' => $refreshToken,
+            'takeover_token' => null,
+            'takeover_expires_at' => null
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Device takeover confirmed. Previous device logged out.',
+            'data' => [
+                'access_token' => $accessToken,
+                'refresh_token' => $refreshToken,
+                'token_type' => 'Bearer',
+                'expires_in_seconds' => auth('api')->factory()->getTTL() * 60,
+                'user' => [
+                    'user_id' => $user->user_id,
+                    'mobile_number' => $user->mobile_number,
+                    'country_code' => $user->country_code,
+                    'full_name' => $user->full_name,
+                    'email' => $user->email,
+                    'user_type' => $user->user_type,
+                    'is_profile_complete' => (bool) $user->is_profile_complete,
+                    'is_premium' => (bool) $user->is_premium,
+                    'premium_expiry_date' => $user->premium_expiry_date
+                ],
+                'device' => [
+                    'device_id' => $request->device_id,
+                    'is_trusted' => true
+                ],
+                'revoked_sessions_count' => $revokedSessions
             ]
         ]);
     }
