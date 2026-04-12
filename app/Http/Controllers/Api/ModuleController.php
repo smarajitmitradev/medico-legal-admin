@@ -33,7 +33,7 @@ class ModuleController extends Controller
 
                 // ✅ PDF full URL (adjust path if needed)
                 'pdf_file' => $content->pdf_file 
-                    ? asset($content->pdf_file) 
+                    ? asset('storage/' . $content->pdf_file)  
                     : null,
 
                 // ✅ SubManagement Info
