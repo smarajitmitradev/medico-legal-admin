@@ -17,6 +17,12 @@
             {!! $module->description_html !!}
         </div>
     </td>
+    <td>
+        <span class="badge bg-light text-dark px-3 py-2">
+            <i class="fa-regular fa-clock me-1"></i>
+            {{ $module->reading_time == 1 ? '1 min read' : $module->reading_time.' mins read' }}
+        </span>
+    </td>
 
     <td>
         @php
@@ -71,18 +77,18 @@
     </td>
 
     <td>
-        <a href="{{ route('module.edit', [$sub->slug, $module->id]) }}" class="btn btn-sm btn-warning">
-            <i class="fas fa-edit"></i>
-        </a>
+    <a href="{{ route('module.edit', [$module->submanagement_id, $module->id]) }}" class="btn btn-sm btn-warning">
+        <i class="fas fa-edit"></i>
+    </a>
 
-        <form action="{{ route('module.destroy', [$sub->slug, $module->id]) }}" method="POST" style="display:inline;">
-            @csrf
-            @method('DELETE')
-            <button onclick="return confirm('Delete?')" class="btn btn-sm btn-danger">
-                <i class="fas fa-trash"></i>
-            </button>
-        </form>
-    </td>
+    <form action="{{ route('module.destroy', [$module->submanagement_id, $module->id]) }}" method="POST" style="display:inline;">
+        @csrf
+        @method('DELETE')
+        <button onclick="return confirm('Delete?')" class="btn btn-sm btn-danger">
+            <i class="fas fa-trash"></i>
+        </button>
+    </form>
+</td>
 </tr>
 @endforeach
 @else

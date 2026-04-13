@@ -73,44 +73,63 @@ class SubManageMentController extends Controller
     {
         $submanagement = SubManagement::findOrFail($id);
         $managements = Management::all();
-        return view('admin.submanagement.edit', compact('submanagement', 'managements'));
+
+        // Get all submanagements of same management
+        $submanagements = SubManagement::where('management_id', $submanagement->management_id)->get();
+
+        return view('admin.submanagement.edit', compact('submanagement', 'managements', 'submanagements'));
     }
 
     // Update submanagement
     public function update(Request $request, $id)
     {
-        $submanagement = SubManagement::findOrFail($id);
-
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'management_id' => 'required|exists:managements,id',
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:1,2,3',
-            'link' => 'nullable|string|max:1000',
+            'items' => 'required|array|min:1',
+            'items.*.name' => 'required|string|max:255',
+            'items.*.type' => 'required|in:1,2,3',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+        // Delete all old submanagements for this management
+        SubManagement::where('management_id', $request->management_id)->delete();
+
+        // Insert new ones
+        foreach ($request->items as $item) {
+
+            $slug = $this->generateUniqueSlug($item['name']);
+
+            SubManagement::create([
+                'management_id' => $request->management_id,
+                'name' => $item['name'],
+                'slug' => $slug,
+                'is_video_pdf' => $item['type'],
+            ]);
         }
 
-        $submanagement->update([
-            'management_id' => $request->management_id,
-            'name' => $request->name,
-            'slug' => $this->generateUniqueSlug($request->name),
-            'is_video_pdf' => $request->type,
-            'link' => $request->link ?? null,
+        return response()->json([
+            'message' => 'Sub Management updated successfully!'
         ]);
-
-        return redirect()->route('submanagement.index')
-            ->with('success', 'Sub Management updated successfully!');
     }
 
     // Delete submanagement
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        // If management_id is passed → delete all under management
+        if ($request->management_id) {
+
+            SubManagement::where('management_id', $request->management_id)->delete();
+
+            return response()->json([
+                'message' => 'All SubManagements deleted successfully!'
+            ]);
+        }
+
+        // Otherwise delete single (default behavior)
         $submanagement = SubManagement::findOrFail($id);
         $submanagement->delete();
 
-        return redirect()->route('submanagement.index')
-            ->with('success', 'Sub Management deleted successfully!');
+        return response()->json([
+            'message' => 'SubManagement deleted successfully!'
+        ]);
     }
 }

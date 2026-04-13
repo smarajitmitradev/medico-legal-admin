@@ -12,7 +12,8 @@ class ModuleContent extends Model
         'title',
         'description',
         'youtube_link',
-        'pdf_file'
+        'pdf_file',
+        'reading_time',
     ];
 
 
@@ -20,4 +21,8 @@ class ModuleContent extends Model
     {
         return $this->belongsTo(SubManagement::class, 'submanagement_id');
     }
+
+    protected $casts = [
+        'reading_time' => 'integer',
+    ];
 }

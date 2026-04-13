@@ -98,6 +98,11 @@
                 </div>
                 @endif
 
+                <div class="mb-3">
+                    <label>Reading Time (Munites)</label>
+                    <input type="number" name="reading_time" placeholder="Enter Reading Time" class="form-control">
+                </div>
+
                 <div class="text-end">
                     <button class="btn btn-custom">Save</button>
                 </div>

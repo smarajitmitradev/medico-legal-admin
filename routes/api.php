@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ManagementController;
 use App\Http\Controllers\Api\ModuleController;
+use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\SubManagementController;
 use App\Http\Controllers\Api\UserController;
 
@@ -43,4 +44,5 @@ Route::middleware('user.auth.api')->group(function () {
     Route::get('/contents', [SubManagementController::class, 'contents']);
     Route::post('/update-profile-image', [UserController::class, 'updateProfileImage']);
     Route::get('/content/{id}', [ModuleController::class, 'show']);
+    Route::get('search', [SearchController::class, 'globalSearch']);
 });

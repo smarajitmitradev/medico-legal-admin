@@ -10,6 +10,7 @@ use App\Models\ModuleContent;
 use League\CommonMark\CommonMarkConverter;
 use Illuminate\Database\QueryException;
 use Exception;
+use Illuminate\Support\Facades\Storage;
 
 class ModuleController extends Controller
 {
@@ -109,6 +110,7 @@ class ModuleController extends Controller
                 'description' => 'nullable',
                 'youtube_link' => 'nullable',
                 'pdf_file' => 'nullable|file|mimes:pdf',
+                'reading_time' => 'required|integer|min:1'
             ]);
 
             $module = new ModuleContent();
@@ -116,6 +118,7 @@ class ModuleController extends Controller
             $module->description = $request->description;
             $module->youtube_link = $request->youtube_link;
             $module->submanagement_id = $sub->id;
+            $module->reading_time = $request->reading_time;
 
             // Upload PDF
             if ($request->hasFile('pdf_file')) {
@@ -145,5 +148,66 @@ class ModuleController extends Controller
         return response()->json([
             'url' => asset('storage/' . $path)
         ]);
+    }
+
+    public function update(Request $request, $sub_slug, $id)
+    {
+        try {
+            $module = ModuleContent::findOrFail($id);
+
+            // Normalize Description
+            if ($request->filled('description')) {
+                $desc = $request->description;
+
+                $desc = str_replace('✅', '[OK]', $desc);
+                $desc = str_replace('→', '->', $desc);
+                $desc = str_replace('—', '-', $desc);
+
+                $desc = str_replace(["•", "‣", "⁃"], '-', $desc);
+                $desc = preg_replace('/^\s*[-–—]\s*/m', '- ', $desc);
+
+                $request->merge(['description' => $desc]);
+            }
+
+            $request->validate([
+                'title' => 'required',
+                'description' => 'nullable',
+                'youtube_link' => 'nullable',
+                'pdf_file' => 'nullable|file|mimes:pdf',
+                'reading_time' => 'required|integer|min:1'
+            ]);
+
+            $module->update([
+                'title' => $request->title,
+                'description' => $request->description,
+                'youtube_link' => $request->youtube_link,
+                'reading_time' => $request->reading_time,
+            ]);
+
+            // PDF Update
+            if ($request->hasFile('pdf_file')) {
+
+                if ($module->pdf_file && Storage::disk('public')->exists($module->pdf_file)) {
+                    Storage::disk('public')->delete($module->pdf_file);
+                }
+
+                $module->update([
+                    'pdf_file' => $request->file('pdf_file')->store('pdfs', 'public')
+                ]);
+            }
+
+            return redirect()
+                ->route('module.index', $module->sub->slug)
+                ->with('success', 'Module updated successfully');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function edit($sub_slug, $id)
+    {
+        $module = ModuleContent::findOrFail($id);
+
+        return view('admin.module.edit', compact('module'));
     }
 }

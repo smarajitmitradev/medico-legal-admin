@@ -7,41 +7,114 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 
 <style>
-    .page-container { margin: 30px; }
 
-    .card-custom {
-        border-radius: 12px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        border: none;
-    }
+/* Page spacing */
+.page-container {
+    margin: 30px;
+}
 
-    .card-header-custom {
-        background: linear-gradient(135deg, #36b9cc, #258391);
-        color: #fff;
-        font-size: 20px;
-        font-weight: 600;
-        border-radius: 12px 12px 0 0;
-        padding: 15px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+/* Card */
+.card-custom {
+    border-radius: 18px;
+    border: none;
+    background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
 
-    .btn-add {
-        background: #fff;
-        color: #36b9cc;
-        font-weight: 600;
-        border-radius: 8px;
-        padding: 6px 15px;
-        border: none;
-    }
+/* Header */
+.card-header-custom {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 18px 18px 0 0;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-    .filter-box {
-        background: #f8f9fc;
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 15px;
-    }
+/* Add button */
+.btn-add {
+    background: #fff;
+    color: #4f46e5;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 6px 15px;
+    border: none;
+    transition: 0.2s;
+}
+.btn-add:hover {
+    transform: scale(1.05);
+}
+
+/* Filter box */
+.filter-box {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Inputs */
+.form-control {
+    border-radius: 10px;
+    height: 42px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+.form-control:focus {
+    border-color: #6366f1;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+
+/* Button */
+.btn-primary {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    border: none;
+    border-radius: 10px;
+    transition: 0.2s;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+}
+
+/* Table */
+.table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.table thead th {
+    border: none;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.table tbody tr {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: 0.2s;
+}
+
+.table tbody tr:hover {
+    transform: translateY(-2px);
+}
+
+.table td {
+    border: none !important;
+    padding: 15px;
+    vertical-align: middle;
+}
+
+/* Empty state */
+.text-muted {
+    font-style: italic;
+}
+
 </style>
 
 <div class="page-container">
@@ -66,7 +139,7 @@
                     <div class="col-md-4">
                         <label>Management</label>
                         <select id="management" class="form-control">
-                            <option value="">Select</option>
+                            <option value="">-- Select --</option>
                             @foreach($managements as $m)
                                 <option value="{{ $m->id }}">{{ $m->name }}</option>
                             @endforeach
@@ -77,7 +150,7 @@
                     <div class="col-md-4">
                         <label>Sub Management</label>
                         <select id="submanagement" class="form-control">
-                            <option value="">Select</option>
+                            <option value="">-- Select --</option>
                         </select>
                     </div>
 
@@ -97,6 +170,7 @@
                         <tr>
                             <th>Title</th>
                             <th>Details</th>
+                            <th>Time</th>
                             <th>Video</th>
                             <th>PDF</th>
                             <th width="150">Action</th>
@@ -133,7 +207,7 @@ $(document).ready(function(){
         let id = $(this).val();
 
         if(!id){
-            $('#submanagement').html('<option value="">Select</option>');
+            $('#submanagement').html('<option value="">-- Select --</option>');
             return;
         }
 
@@ -146,7 +220,7 @@ $(document).ready(function(){
 
                 console.log(data)
 
-                let html = '<option value="">Select</option>';
+                let html = '<option value="">-- Select --</option>';
 
                 if(data.length > 0){
                     data.forEach(item => {

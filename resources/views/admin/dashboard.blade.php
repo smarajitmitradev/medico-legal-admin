@@ -1,6 +1,90 @@
 @extends('admin.layout.master')
 
 @section('content')
+<style>
+
+/* Page title */
+h2 {
+    font-weight: 700;
+    color: #1f2937;
+}
+
+/* ===== STAT CARDS ===== */
+.stat-card {
+    border-radius: 16px;
+    border: none;
+    padding: 15px;
+    color: #fff;
+    transition: 0.3s;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px) scale(1.02);
+}
+
+/* Gradient backgrounds */
+.bg-primary-gradient {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+}
+
+.bg-success-gradient {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.bg-warning-gradient {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.bg-danger-gradient {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+/* ===== MAIN CARDS ===== */
+.card {
+    border-radius: 18px;
+    border: none;
+    background: linear-gradient(135deg, #f8fafc, #eef2ff);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.card-header {
+    background: transparent !important;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* ===== PROGRESS ===== */
+.progress {
+    height: 10px;
+    border-radius: 10px;
+    background: #e5e7eb;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+/* ===== ACTIVITY LIST ===== */
+.list-group-item {
+    border: none;
+    background: #f9fafb;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    transition: 0.2s;
+}
+
+.list-group-item:hover {
+    background: #eef2ff;
+}
+
+/* ===== CHART CONTAINER ===== */
+canvas {
+    max-height: 300px;
+}
+
+</style>
 
 <div class="container-fluid">
 
@@ -10,7 +94,7 @@
     <div class="row g-4 mb-4">
 
         <div class="col-md-3">
-            <div class="card shadow border-0 text-white bg-primary">
+        <div class="stat-card bg-primary-gradient">
                 <div class="card-body">
                     <h6>Total Users</h6>
                     <h3>1,250</h3>
@@ -20,7 +104,7 @@
         </div>
 
         <div class="col-md-3">
-            <div class="card shadow border-0 text-white bg-success">
+        <div class="stat-card bg-success-gradient">
                 <div class="card-body">
                     <h6>Orders</h6>
                     <h3>320</h3>
@@ -30,7 +114,7 @@
         </div>
 
         <div class="col-md-3">
-            <div class="card shadow border-0 text-white bg-warning">
+        <div class="stat-card bg-warning-gradient">
                 <div class="card-body">
                     <h6>Revenue</h6>
                     <h3>$5,430</h3>
@@ -40,7 +124,7 @@
         </div>
 
         <div class="col-md-3">
-            <div class="card shadow border-0 text-white bg-danger">
+        <div class="stat-card bg-danger-gradient">
                 <div class="card-body">
                     <h6>Pending Tasks</h6>
                     <h3>18</h3>
