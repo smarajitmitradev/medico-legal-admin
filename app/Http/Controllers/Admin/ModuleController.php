@@ -52,7 +52,11 @@ class ModuleController extends Controller
             $desc = str_replace('->', '→', $desc);
             $desc = str_replace('- >', '→', $desc); // handles your exact case
             $desc = str_replace('—', '-', $desc);   // optional: normalize dash
+            // ✅ Move "o" to new line WITHOUT removing . or :
+            $desc = preg_replace('/([.:])\s+o\s+/i', "$1\no ", $desc);
 
+            // ✅ Also handle inline "o" without punctuation
+            $desc = preg_replace('/(?<!\n)o\s+/i', "\no ", $desc);
             // Step 2: Convert to HTML using CommonMark
             $module->description_html = $converter->convert($desc);
         }
@@ -87,27 +91,27 @@ class ModuleController extends Controller
         try {
             $sub = SubManagement::where('slug', $sub_slug)->firstOrFail();
 
-            // Normalize + Safe Replace
-            if ($request->has('description') && $request->description != null) {
-                $desc = $request->description;
+            // ✅ RAW markdown input
+            $rawContent = $request->description;
 
-                // Replace problematic Unicode characters
+            // ✅ Structured markdown (for API)
+            $markdownContent = $this->formatToMarkdown($rawContent);
+
+            // ✅ Clean description (no change in your logic)
+            $desc = $rawContent;
+
+            if (!empty($desc)) {
                 $desc = str_replace('✅', '[OK]', $desc);
                 $desc = str_replace('→', '->', $desc);
                 $desc = str_replace('—', '-', $desc);
-
-                // Normalize bullets
                 $desc = str_replace(["•", "‣", "⁃"], '-', $desc);
-
-                // Ensure proper markdown format
                 $desc = preg_replace('/^\s*[-–—]\s*/m', '- ', $desc);
-
-                $request->merge(['description' => $desc]);
             }
 
             $request->validate([
                 'title' => 'required',
                 'description' => 'nullable',
+                'summary' => 'nullable|required',
                 'youtube_link' => 'nullable',
                 'pdf_file' => 'nullable|file|mimes:pdf',
                 'reading_time' => 'required|integer|min:1'
@@ -115,12 +119,19 @@ class ModuleController extends Controller
 
             $module = new ModuleContent();
             $module->title = $request->title;
-            $module->description = $request->description;
+
+            // ✅ Keep your description logic unchanged (just cleaner assignment)
+            $module->description = $desc;
+
+            // ✅ Structured markdown
+            $module->markdown_content = $markdownContent;
+
             $module->youtube_link = $request->youtube_link;
             $module->submanagement_id = $sub->id;
+            $module->summary = $request->summary;
             $module->reading_time = $request->reading_time;
 
-            // Upload PDF
+            // PDF Upload
             if ($request->hasFile('pdf_file')) {
                 $module->pdf_file = $request->file('pdf_file')->store('pdfs', 'public');
             }
@@ -155,18 +166,26 @@ class ModuleController extends Controller
         try {
             $module = ModuleContent::findOrFail($id);
 
-            // Normalize Description
-            if ($request->filled('description')) {
-                $desc = $request->description;
+            // ✅ RAW input
+            $rawContent = $request->description;
 
+            // ✅ Structured markdown (only if provided)
+            $markdownContent = !empty($rawContent)
+                ? $this->formatToMarkdown($rawContent)
+                : $module->markdown_content;
+            // dd($markdownContent);
+            // ✅ Clean description (same logic as store)
+            $desc = $rawContent;
+
+            if (!empty($desc)) {
                 $desc = str_replace('✅', '[OK]', $desc);
                 $desc = str_replace('→', '->', $desc);
                 $desc = str_replace('—', '-', $desc);
-
                 $desc = str_replace(["•", "‣", "⁃"], '-', $desc);
                 $desc = preg_replace('/^\s*[-–—]\s*/m', '- ', $desc);
-
-                $request->merge(['description' => $desc]);
+            } else {
+                // keep old description if not sent
+                $desc = $module->description;
             }
 
             $request->validate([
@@ -174,17 +193,21 @@ class ModuleController extends Controller
                 'description' => 'nullable',
                 'youtube_link' => 'nullable',
                 'pdf_file' => 'nullable|file|mimes:pdf',
-                'reading_time' => 'required|integer|min:1'
+                'reading_time' => 'required|integer|min:1',
+                'summary' => 'nullable|required',
             ]);
 
+            // ✅ Update main fields
             $module->update([
                 'title' => $request->title,
-                'description' => $request->description,
+                'description' => $desc,                  // cleaned
+                'markdown_content' => $markdownContent,  // structured markdown
                 'youtube_link' => $request->youtube_link,
                 'reading_time' => $request->reading_time,
+                'summary' => $request->summary,
             ]);
 
-            // PDF Update
+            // ✅ PDF Update
             if ($request->hasFile('pdf_file')) {
 
                 if ($module->pdf_file && Storage::disk('public')->exists($module->pdf_file)) {
@@ -200,6 +223,7 @@ class ModuleController extends Controller
                 ->route('module.index', $module->sub->slug)
                 ->with('success', 'Module updated successfully');
         } catch (\Exception $e) {
+            // dd($e->getMessage());
             return back()->with('error', $e->getMessage());
         }
     }
@@ -209,5 +233,54 @@ class ModuleController extends Controller
         $module = ModuleContent::findOrFail($id);
 
         return view('admin.module.edit', compact('module'));
+    }
+
+    private function formatToMarkdown($text)
+    {
+        if (!$text) return null;
+
+        $lines = preg_split('/\r\n|\r|\n/', $text);
+        $formatted = [];
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+
+            if ($line === '') {
+                $formatted[] = '';
+                continue;
+            }
+
+            // ✅ Convert bullet icons (•, ‣, ⁃, o) → markdown "-"
+            if (preg_match('/^(•|‣|⁃|o)\s+/u', $line)) {
+                $line = '- ' . preg_replace('/^(•|‣|⁃|o)\s+/u', '', $line);
+                $formatted[] = $line;
+                continue;
+            }
+
+            // Convert headings
+            if (stripos($line, 'Definition:') === 0) {
+                $formatted[] = "## Definition";
+                $formatted[] = trim(substr($line, strlen('Definition:')));
+            } elseif (stripos($line, 'Standard applied:') === 0) {
+                $formatted[] = "## Standard Applied";
+                $formatted[] = trim(substr($line, strlen('Standard applied:')));
+            }
+
+            // Convert list-like lines
+            elseif (
+                str_contains($line, 'Misdiagnosis') ||
+                str_contains($line, 'Ignoring') ||
+                str_contains($line, 'Civil negligence')
+            ) {
+                if (!in_array("## Key Points", $formatted)) {
+                    $formatted[] = "## Key Points";
+                }
+                $formatted[] = "- " . ltrim($line, '- ');
+            } else {
+                $formatted[] = $line;
+            }
+        }
+
+        return implode("\n", $formatted);
     }
 }

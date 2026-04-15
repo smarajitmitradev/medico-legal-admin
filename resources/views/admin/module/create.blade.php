@@ -77,6 +77,10 @@
                     <label>Title</label>
                     <input type="text" name="title" placeholder="Enter title" class="form-control">
                 </div>
+                <div class="mb-3">
+                    <label>Summary</label>
+                    <textarea name="summary" placeholder="Enter Summary" class="form-control" rows="2"></textarea>
+                </div>
 
                 <div class="mb-3">
                     <label>Description</label>
@@ -117,9 +121,9 @@
         el: document.querySelector('#editor'),
         height: '400px',
         initialEditType: 'markdown', // markdown + preview
-        previewStyle: 'vertical',    // side-by-side like Notion
+        previewStyle: 'vertical', // side-by-side like Notion
         placeholder: 'Write something...',
-        
+
         hooks: {
             addImageBlobHook: async (blob, callback) => {
                 const formData = new FormData();
@@ -142,7 +146,7 @@
     });
 
     // before submit, put markdown into hidden input
-    document.querySelector("form").addEventListener("submit", function () {
+    document.querySelector("form").addEventListener("submit", function() {
         document.querySelector("#description").value = editor.getMarkdown();
     });
 </script>

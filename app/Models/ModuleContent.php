@@ -14,6 +14,8 @@ class ModuleContent extends Model
         'youtube_link',
         'pdf_file',
         'reading_time',
+        'markdown_content',
+        'summary'
     ];
 
 

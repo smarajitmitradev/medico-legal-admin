@@ -81,6 +81,10 @@
                     <label>Title</label>
                     <input type="text" name="title" value="{{ $module->title }}" class="form-control">
                 </div>
+                <div class="mb-3">
+                    <label>Summary</label>
+                    <textarea name="summary" class="form-control" rows="2">{{ old('summary', $module->summary) }}</textarea>
+                </div>
 
                 <div class="mb-3">
                     <label>Description</label>
@@ -131,7 +135,8 @@
         initialEditType: 'markdown',
         previewStyle: 'vertical',
 
-        initialValue: {!! json_encode($module->description ?? '') !!},
+        // ✅ Use markdown_content (IMPORTANT)
+        initialValue: @json($module->markdown_content ?? ''),
 
         hooks: {
             addImageBlobHook: async (blob, callback) => {
@@ -152,9 +157,9 @@
         }
     });
 
-    document.querySelector("form").addEventListener("submit", function() {
+    // submit markdown
+    document.querySelector("form").addEventListener("submit", function () {
         document.querySelector("#description").value = editor.getMarkdown();
     });
 </script>
-
 @endsection

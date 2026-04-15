@@ -28,7 +28,8 @@ class ModuleController extends Controller
             'data' => [
                 'id' => (string) $content->id,
                 'title' => $content->title,
-                'description' => $content->description,
+                'summary'=> $content->summary,
+                'content_in_detail' => $content->markdown_content,
                 'youtube_link' => $content->youtube_link,
 
                 // ✅ PDF full URL (adjust path if needed)
