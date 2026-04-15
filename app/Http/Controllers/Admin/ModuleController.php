@@ -109,10 +109,10 @@ class ModuleController extends Controller
             }
 
             $request->validate([
-                'title' => 'required',
-                'description' => 'nullable',
+                'title' => 'required|required',
+                'description' => 'nullable|required',
                 'summary' => 'nullable|required',
-                'youtube_link' => 'nullable',
+                'youtube_link' => 'nullable|required',
                 'pdf_file' => 'nullable|file|mimes:pdf',
                 'reading_time' => 'required|integer|min:1'
             ]);
