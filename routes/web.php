@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\ManagementController;
 use App\Http\Controllers\Admin\SubManageMentController;
 use App\Http\Controllers\Frontend\Auth\UserAuthController;
 use App\Http\Controllers\Admin\ModuleController;
+use App\Http\Controllers\Admin\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/markdown', [DashboardController::class, 'markdown'])->name('markdown');
         Route::resource('management', ManagementController::class);
         Route::resource('submanagement', SubManageMentController::class);
+        Route::resource('notification', NotificationController::class);
 
 
         Route::prefix('module/{sub_slug}')->group(function () {

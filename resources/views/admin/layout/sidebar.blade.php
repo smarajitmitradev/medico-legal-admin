@@ -45,6 +45,14 @@
             </a>
         </li>
 
+        {{-- NOTIFICATION --}}
+        <li class="nav-item mb-2">
+            <a href="{{ route('notification.index') }}" class="nav-link sidebar-link {{ request()->routeIs('notification.*') ? 'active' : '' }}">
+                <i class="bi bi-bell"></i>
+                <span>Notification</span>
+            </a>
+        </li>
+
         <!-- Settings -->
         <li class="nav-item">
             <a href="#" class="nav-link sidebar-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
