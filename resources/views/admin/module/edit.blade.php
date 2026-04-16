@@ -136,7 +136,7 @@
         previewStyle: 'vertical',
 
         // ✅ Use markdown_content (IMPORTANT)
-        initialValue: @json($module->markdown_content ?? ''),
+        initialValue: @json($module->markdown_content ?? ''), 
 
         hooks: {
             addImageBlobHook: async (blob, callback) => {

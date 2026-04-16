@@ -137,7 +137,6 @@ class ModuleController extends Controller
             }
 
             $module->save();
-
             return redirect()
                 ->route('module.index', $sub->slug)
                 ->with('success', 'Module created successfully');
@@ -178,13 +177,33 @@ class ModuleController extends Controller
             $desc = $rawContent;
 
             if (!empty($desc)) {
-                $desc = str_replace('✅', '[OK]', $desc);
-                $desc = str_replace('→', '->', $desc);
-                $desc = str_replace('—', '-', $desc);
-                $desc = str_replace(["•", "‣", "⁃"], '-', $desc);
+
+                // Normalize encoding (fix weird characters like ÔÇ£)
+                $desc = mb_convert_encoding($desc, 'UTF-8', 'UTF-8');
+
+                // Replace common problematic Unicode characters
+                $search = [
+                    '✅', '→', '—', '–',
+                    '“', '”', '‘', '’',
+                    '•', '‣', '⁃',
+                    '…'
+                ];
+
+                $replace = [
+                    '[OK]', '->', '-', '-',
+                    '"', '"', "'", "'",
+                    '-', '-', '-',
+                    '...'
+                ];
+
+                $desc = str_replace($search, $replace, $desc);
+
+                // Remove any remaining non-UTF8 / unsupported chars
+                $desc = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $desc);
+
+                // Clean bullet formatting
                 $desc = preg_replace('/^\s*[-–—]\s*/m', '- ', $desc);
             } else {
-                // keep old description if not sent
                 $desc = $module->description;
             }
 
@@ -196,7 +215,6 @@ class ModuleController extends Controller
                 'reading_time' => 'required|integer|min:1',
                 'summary' => 'nullable|required',
             ]);
-
             // ✅ Update main fields
             $module->update([
                 'title' => $request->title,
