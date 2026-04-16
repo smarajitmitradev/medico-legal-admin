@@ -53,10 +53,10 @@ class ModuleController extends Controller
             $desc = str_replace('- >', '→', $desc); // handles your exact case
             $desc = str_replace('—', '-', $desc);   // optional: normalize dash
             // ✅ Move "o" to new line WITHOUT removing . or :
-            $desc = preg_replace('/([.:])\s+o\s+/i', "$1\no ", $desc);
+            $desc = preg_replace('/([.:])\s+\bo\b\s+/i', "$1\no ", $desc);
 
-            // ✅ Also handle inline "o" without punctuation
-            $desc = preg_replace('/(?<!\n)o\s+/i', "\no ", $desc);
+            // standalone "o" only (not inside words)
+            $desc = preg_replace('/(?<!\n)\bo\b\s+/i', "\no ", $desc);
             // Step 2: Convert to HTML using CommonMark
             $module->description_html = $converter->convert($desc);
         }
