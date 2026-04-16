@@ -36,6 +36,10 @@ class ModuleController extends Controller
                 'pdf_file' => $content->pdf_file 
                     ? asset('storage/' . $content->pdf_file)  
                     : null,
+                'reading_time_in_munites' => $content->reading_time,
+                'thumbnail' => null,
+                'is_premium' => false,
+                'created_at' => $content->created_at,
 
                 // ✅ SubManagement Info
                 'submanagement' => $content->sub ? [
