@@ -28,8 +28,9 @@
         @php
         $video = trim($module->youtube_link ?? '');
         $youtubeId = null;
-        $isShort = false; // ✅ ALWAYS define first
+        $isShort = false;
 
+        if (!empty($video)) {
         // youtube shorts
         if (preg_match('/youtube\.com\/shorts\/([^\&\?\/]+)/', $video, $match)) {
         $youtubeId = $match[1];
@@ -47,13 +48,18 @@
         elseif (preg_match('/youtu\.be\/([^\&\?\/]+)/', $video, $match)) {
         $youtubeId = $match[1];
         }
+        }
         @endphp
 
-        @if($youtubeId)
+        @if(empty($video))
+        <span class="text-muted">No Video</span>
+
+        @elseif($youtubeId)
         <div style="width:200px; height:120px; overflow:hidden; border-radius:8px;">
             <iframe src="https://www.youtube.com/embed/{{ $youtubeId }}" style="width:100%; height:100%; object-fit:cover;" frameborder="0" allowfullscreen>
             </iframe>
         </div>
+
         @else
         <a href="{{ $video }}" target="_blank">Watch Video</a>
         @endif
@@ -77,18 +83,18 @@
     </td>
 
     <td>
-    <a href="{{ route('module.edit', [$module->submanagement_id, $module->id]) }}" class="btn btn-sm btn-warning">
-        <i class="fas fa-edit"></i>
-    </a>
+        <a href="{{ route('module.edit', [$module->submanagement_id, $module->id]) }}" class="btn btn-sm btn-warning">
+            <i class="fas fa-edit"></i>
+        </a>
 
-    <form action="{{ route('module.destroy', [$module->submanagement_id, $module->id]) }}" method="POST" style="display:inline;">
-        @csrf
-        @method('DELETE')
-        <button onclick="return confirm('Delete?')" class="btn btn-sm btn-danger">
-            <i class="fas fa-trash"></i>
-        </button>
-    </form>
-</td>
+        <form action="{{ route('module.destroy', [$module->submanagement_id, $module->id]) }}" method="POST" style="display:inline;">
+            @csrf
+            @method('DELETE')
+            <button onclick="return confirm('Delete?')" class="btn btn-sm btn-danger">
+                <i class="fas fa-trash"></i>
+            </button>
+        </form>
+    </td>
 </tr>
 @endforeach
 @else
