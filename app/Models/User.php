@@ -25,6 +25,9 @@ class User extends Authenticatable implements JWTSubject
         'otp_expires_at',
         'refresh_token',
         'device_id',
+        // ✅ NEW (FCM)
+        'fcm_token',
+        'temp_fcm_token', // optional
         'user_type',
         'is_profile_complete',
         'is_premium',

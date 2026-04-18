@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Str;
+use App\Helpers\FcmHelper;
 
 class AuthController extends Controller
 {
@@ -55,7 +56,8 @@ class AuthController extends Controller
             'mobile_number' => 'required',
             'country_code'  => 'required',
             'otp'           => 'required',
-            'device_id'     => 'required'
+            'device_id'     => 'required',
+            'fcm_token'     => 'nullable' // ✅ NEW
         ]);
 
         $user = User::where('mobile_number', $request->mobile_number)->first();
@@ -76,14 +78,17 @@ class AuthController extends Controller
             ], 400);
         }
 
-        // ✅ DEVICE CHECK (NEW LOGIC)
+        // ✅ DEVICE CHECK (TAKEOVER FLOW)
         if ($user->device_id && $user->device_id !== $request->device_id) {
 
             $takeoverToken = Str::random(40);
 
             $user->update([
                 'takeover_token' => $takeoverToken,
-                'takeover_expires_at' => now()->addMinutes(5)
+                'takeover_expires_at' => now()->addMinutes(5),
+
+                // ✅ store requested device temp token (optional)
+                'temp_fcm_token' => $request->fcm_token ?? null
             ]);
 
             return response()->json([
@@ -107,15 +112,20 @@ class AuthController extends Controller
             ]);
         }
 
-        // ✅ NORMAL LOGIN (NO CHANGE)
+        // ✅ NORMAL LOGIN
         $accessToken = auth('api')->login($user);
         $refreshToken = Str::random(64);
 
         $user->update([
             'otp' => null,
             'refresh_token' => $refreshToken,
-            'refresh_token_expires_at' => now()->addDays(7), // 🔥 7 days expiry
+            'refresh_token_expires_at' => now()->addDays(7),
+
+            // ✅ Device tracking
             'device_id' => $request->device_id,
+            'fcm_token' => $request->fcm_token ?? null,
+
+            // ✅ clear takeover
             'takeover_token' => null,
             'takeover_expires_at' => null
         ]);
@@ -273,7 +283,8 @@ class AuthController extends Controller
     {
         $request->validate([
             'takeover_token' => 'required',
-            'device_id' => 'required'
+            'device_id' => 'required',
+            'fcm_token' => 'nullable' // ✅ NEW
         ]);
 
         $user = User::where('takeover_token', $request->takeover_token)->first();
@@ -288,20 +299,40 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // Count old sessions (basic simulation)
-        $revokedSessions = $user->device_id ? 1 : 0;
+        // ✅ STORE OLD DEVICE INFO (VERY IMPORTANT)
+        $oldDeviceId = $user->device_id;
+        $oldFcmToken = $user->fcm_token;
+
+        // Count old sessions
+        $revokedSessions = $oldDeviceId ? 1 : 0;
 
         // Generate tokens
         $accessToken = auth('api')->login($user);
         $refreshToken = Str::random(64);
 
-        // Update user
+        // ✅ UPDATE USER WITH NEW DEVICE
         $user->update([
             'device_id' => $request->device_id,
+            'fcm_token' => $request->fcm_token ?? null,
             'refresh_token' => $refreshToken,
+            'refresh_token_expires_at' => now()->addDays(7),
             'takeover_token' => null,
             'takeover_expires_at' => null
         ]);
+
+        // ✅ SEND FORCE LOGOUT TO OLD DEVICE
+        if ($oldFcmToken && $oldDeviceId !== $request->device_id) {
+
+            FcmHelper::send(
+                $oldFcmToken,
+                'Logged Out',
+                'Your account was logged in from another device.',
+                [
+                    'action' => 'force_logout',
+                    'reason' => 'device_takeover'
+                ]
+            );
+        }
 
         return response()->json([
             'success' => true,
