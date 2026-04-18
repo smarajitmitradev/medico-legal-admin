@@ -202,7 +202,8 @@ class ModuleController extends Controller
                 $desc = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $desc);
 
                 // Clean bullet formatting
-                $desc = preg_replace('/^\s*[-–—]\s*/m', '- ', $desc);
+                // $desc = preg_replace('/^\s*[-–—]\s*/m', '- ', $desc);
+                $desc = preg_replace('/^([ ]*)[-–—]\s*/m', '$1- ', $desc);
             } else {
                 $desc = $module->description;
             }
@@ -261,31 +262,60 @@ class ModuleController extends Controller
         $formatted = [];
 
         foreach ($lines as $line) {
-            $line = trim($line);
+            $line = rtrim($line); // keep indentation
 
             if ($line === '') {
                 $formatted[] = '';
                 continue;
             }
 
-            // ✅ Convert bullet icons (•, ‣, ⁃, o) → markdown "-"
-            if (preg_match('/^(•|‣|⁃|o)\s+/u', $line)) {
-                $line = '- ' . preg_replace('/^(•|‣|⁃|o)\s+/u', '', $line);
+            // ✅ Handle "*" bullets (with indentation)
+            if (preg_match('/^([ ]*)\*\s+/', $line, $matches)) {
+                $indent = $matches[1];
+                $line = $indent . '- ' . preg_replace('/^([ ]*)\*\s+/', '', $line);
                 $formatted[] = $line;
                 continue;
             }
 
-            // Convert headings
+            // ✅ Handle (• ‣ ⁃)
+            if (preg_match('/^([ ]*)(•|‣|⁃)\s+/u', $line, $matches)) {
+                $indent = $matches[1];
+                $line = $indent . '- ' . preg_replace('/^([ ]*)(•|‣|⁃)\s+/u', '', $line);
+                $formatted[] = $line;
+                continue;
+            }
+
+            // ✅ Handle "o" sub-bullets
+            if (preg_match('/^([ ]*)o\s+/u', $line, $matches)) {
+                $indent = $matches[1] . '  '; // force sub-level
+                $line = $indent . '- ' . preg_replace('/^([ ]*)o\s+/u', '', $line);
+                $formatted[] = $line;
+                continue;
+            }
+
+            // ✅ Normalize dash bullets (keep indentation)
+            if (preg_match('/^([ ]*)[-–—]\s+/', $line, $matches)) {
+                $indent = $matches[1];
+                $line = $indent . '- ' . preg_replace('/^([ ]*)[-–—]\s+/', '', $line);
+                $formatted[] = $line;
+                continue;
+            }
+
+            // ✅ Headings
             if (stripos($line, 'Definition:') === 0) {
                 $formatted[] = "## Definition";
                 $formatted[] = trim(substr($line, strlen('Definition:')));
-            } elseif (stripos($line, 'Standard applied:') === 0) {
-                $formatted[] = "## Standard Applied";
-                $formatted[] = trim(substr($line, strlen('Standard applied:')));
+                continue;
             }
 
-            // Convert list-like lines
-            elseif (
+            if (stripos($line, 'Standard applied:') === 0) {
+                $formatted[] = "## Standard Applied";
+                $formatted[] = trim(substr($line, strlen('Standard applied:')));
+                continue;
+            }
+
+            // ✅ Key Points
+            if (
                 str_contains($line, 'Misdiagnosis') ||
                 str_contains($line, 'Ignoring') ||
                 str_contains($line, 'Civil negligence')
@@ -293,10 +323,12 @@ class ModuleController extends Controller
                 if (!in_array("## Key Points", $formatted)) {
                     $formatted[] = "## Key Points";
                 }
+
                 $formatted[] = "- " . ltrim($line, '- ');
-            } else {
-                $formatted[] = $line;
+                continue;
             }
+
+            $formatted[] = $line;
         }
 
         return implode("\n", $formatted);

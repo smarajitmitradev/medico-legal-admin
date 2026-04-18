@@ -10,9 +10,12 @@ class NotificationController extends Controller
 {
     public function list(Request $request)
     {
-        $query = Notification::with('content')->latest();
+        $limit = $request->limit ?? 10;
+        $cursor = $request->cursor;
 
-        // if ID provided → single record
+        $query = Notification::with('content')->orderBy('id');
+
+        // ✅ Single record (no pagination)
         if ($request->id) {
             $notification = $query->where('id', $request->id)->first();
 
@@ -29,14 +32,42 @@ class NotificationController extends Controller
             ]);
         }
 
-        // else → all list
-        $notifications = $query->get();
+        // ✅ Cursor logic
+        if ($cursor) {
+            $decoded = json_decode(base64_decode($cursor), true);
 
+            if (isset($decoded['id'])) {
+                $query->where('id', '>', $decoded['id']);
+            }
+        }
+
+        // ✅ Fetch records
+        $notifications = $query->limit($limit + 1)->get();
+
+        $hasMore = $notifications->count() > $limit;
+
+        $notifications = $notifications->take($limit);
+
+        // ✅ Next cursor
+        $nextCursor = null;
+        if ($hasMore && $notifications->count()) {
+            $last = $notifications->last();
+
+            $nextCursor = base64_encode(json_encode([
+                'id' => $last->id
+            ]));
+        }
+
+        // ✅ Response
         return response()->json([
             'status' => true,
             'data' => $notifications->map(function ($n) {
                 return $this->format($n);
-            })
+            }),
+            'paging' => [
+                'next_cursor' => $nextCursor,
+                'has_more' => $hasMore
+            ]
         ]);
     }
 
