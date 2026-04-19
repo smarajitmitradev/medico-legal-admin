@@ -36,6 +36,8 @@ class User extends Authenticatable implements JWTSubject
         'takeover_token',
         'takeover_expires_at',
         'refresh_token_expires_at',
+        'platform',
+        'app_id',
     ];
 
     /**

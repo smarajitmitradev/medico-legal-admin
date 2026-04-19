@@ -361,4 +361,66 @@ class AuthController extends Controller
             ]
         ]);
     }
+
+    public function registerFcmToken(Request $request)
+    {
+        $request->validate([
+            'token'      => 'required|string',
+            'platform'   => 'required|string|in:android,ios,web',
+            'app_id'     => 'required|string',
+            'device_id'  => 'required|string',
+            'user_id'    => 'nullable|string'
+        ]);
+
+        // ✅ If user_id is provided → validate device
+        if ($request->user_id) {
+
+            $user = User::where('id', $request->user_id)->first();
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'error' => ['code' => 'USER_NOT_FOUND']
+                ], 404);
+            }
+
+            // ❌ Device mismatch check
+            if ($user->device_id && $user->device_id !== $request->device_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Device mismatch',
+                    'error' => ['code' => 'DEVICE_MISMATCH']
+                ], 401);
+            }
+
+            // ✅ Update user FCM + device info
+            $user->update([
+                'fcm_token' => $request->token,
+                'device_id' => $request->device_id,
+                'app_id' => $request->app_id,
+                'platform' => $request->platform
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'FCM token updated successfully',
+                'data' => [
+                    'user_id'   => $user->id,
+                    'device_id' => $user->device_id,
+                    'fcm_token' => $user->fcm_token
+                ]
+            ]);
+        }
+
+        // ✅ If no user_id → just acknowledge (guest/device level)
+        return response()->json([
+            'success' => true,
+            'message' => 'FCM token registered (guest)',
+            'data' => [
+                'device_id' => $request->device_id,
+                'fcm_token' => $request->token
+            ]
+        ]);
+    }
 }
