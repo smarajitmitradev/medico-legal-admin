@@ -33,7 +33,6 @@ Route::prefix('auth')->group(function () {
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
     Route::post('/confirm-device-takeover', [AuthController::class, 'confirmDeviceTakeover']);
-    Route::post('/register-fcm-token', [AuthController::class, 'registerFcmToken']);
 });
 
 Route::middleware('user.auth.api')->group(function () {
@@ -48,4 +47,6 @@ Route::middleware('user.auth.api')->group(function () {
     Route::get('/content/{id}', [ModuleController::class, 'show']);
     Route::get('search', [SearchController::class, 'globalSearch']);
     Route::get('notifications', [NotificationController::class, 'list']);
+
+    Route::post('/register-fcm-token', [AuthController::class, 'registerFcmToken']);
 });
