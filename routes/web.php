@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\SubManageMentController;
 use App\Http\Controllers\Frontend\Auth\UserAuthController;
 use App\Http\Controllers\Admin\ModuleController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Frontend\UserPageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +79,10 @@ Route::prefix('user')->group(function () {
     Route::post('/register', [UserAuthController::class, 'register'])->name('user.register.submit');
 
     Route::get('/logout', [UserAuthController::class, 'logout'])->name('user.logout');
+    // ✅ About Page Route (NEW)
+    Route::get('/about', [UserPageController::class, 'about'])->name('user.about');
+    Route::get('/terms', [UserPageController::class, 'terms'])->name('user.terms');
+    Route::get('/privacy', [UserPageController::class, 'privacy'])->name('user.privacy');
 
     Route::middleware(['user.auth'])->group(function () {
         Route::get('/dashboard', function () {
