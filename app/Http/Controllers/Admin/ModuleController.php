@@ -15,11 +15,17 @@ use Illuminate\Support\Facades\Storage;
 class ModuleController extends Controller
 {
     // MAIN PAGE (NOW DROPDOWN BASED)
-    public function index($slug = null)
+    public function index($sub_slug = null)
     {
         $managements = Management::all();
 
-        return view('admin.module.index', compact('managements'));
+        $selectedSub = null;
+
+        if ($sub_slug) {
+            $selectedSub = SubManagement::where('slug', $sub_slug)->first();
+        }
+
+        return view('admin.module.index', compact('managements', 'selectedSub'));
     }
 
     // GET SUB MANAGEMENT (AJAX)

@@ -14,8 +14,10 @@
 
         <!-- Users -->
         <li class="nav-item mb-2">
-            <a href="#" class="nav-link sidebar-link {{ request()->routeIs('admin.users') ? 'active' : '' }}">
+            <a href="{{ route('users.index') }}" class="nav-link sidebar-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
+
                 <i class="bi bi-people"></i>
+
                 <span>Users</span>
             </a>
         </li>
@@ -54,11 +56,16 @@
         </li>
 
         <!-- Settings -->
-        <li class="nav-item">
-            <a href="#" class="nav-link sidebar-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
+        <li class="nav-item mb-2">
+
+            <a href="{{ route('settings.index') }}" class="nav-link sidebar-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+
                 <i class="bi bi-gear"></i>
+
                 <span>Settings</span>
+
             </a>
+
         </li>
 
     </ul>

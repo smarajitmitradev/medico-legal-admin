@@ -144,11 +144,23 @@
                         <div class="sub-box d-flex justify-content-between align-items-center">
 
                             <!-- Name + Type -->
-                            <div>
-                                <strong>{{ $sub->name }}</strong>
-                                <span class="badge bg-secondary ms-2">
-                                    {{ $type[$sub->is_video_pdf] ?? '-' }}
-                                </span>
+                            <div class="d-flex justify-content-between align-items-center w-100">
+
+                                <!-- Left: Name + Type -->
+                                <div>
+                                    <strong>{{ $sub->name }}</strong>
+                                    <span class="badge bg-secondary ms-2">
+                                        {{ $type[$sub->is_video_pdf] ?? '-' }}
+                                    </span>
+                                </div>
+
+                                <!-- Right: View Modules Button -->
+                                <div>
+                                    <a href="{{ route('module.index', ['sub_slug' => $sub->slug]) }}" class="btn btn-sm btn-primary">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                </div>
+
                             </div>
 
                         </div>

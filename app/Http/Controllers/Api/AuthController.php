@@ -7,11 +7,13 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Str;
 use App\Helpers\FcmHelper;
+use App\Services\OtpService;
 
 class AuthController extends Controller
 {
     // ✅ Send OTP
-    public function sendOtp(Request $request)
+    public function sendOtp(Request $request, OtpService
+     $otpService)
     {
         $request->validate([
             'mobile_number' => 'required',
@@ -34,6 +36,18 @@ class AuthController extends Controller
             $user->update([
                 'otp' => $otp,
                 'otp_expires_at' => now()->addSeconds(120)
+            ]);
+        }
+
+        // ✅ NEW: Send OTP via your service
+        $fullMobile = $request->country_code . $request->mobile_number;
+        $response = $otpService->sendOtp($fullMobile, $otp);
+
+        // (Optional check)
+        if ($response['Status'] != 'Success') {
+            return response()->json([
+                'success' => false,
+                'message' => 'OTP sending failed'
             ]);
         }
 

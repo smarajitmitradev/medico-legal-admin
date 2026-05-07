@@ -4,120 +4,159 @@
 
 <!-- jQuery (required for AJAX) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
 <style>
+    /* Page spacing */
+    .page-container {
+        margin: 30px;
+    }
 
-/* Page spacing */
-.page-container {
-    margin: 30px;
-}
+    /* Card */
+    .card-custom {
+        border-radius: 18px;
+        border: none;
+        background: linear-gradient(135deg, #f8fafc, #eef2ff);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
 
-/* Card */
-.card-custom {
-    border-radius: 18px;
-    border: none;
-    background: linear-gradient(135deg, #f8fafc, #eef2ff);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-}
+    /* Header */
+    .card-header-custom {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: #fff;
+        font-size: 20px;
+        font-weight: 600;
+        border-radius: 18px 18px 0 0;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-/* Header */
-.card-header-custom {
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
-    color: #fff;
-    font-size: 20px;
-    font-weight: 600;
-    border-radius: 18px 18px 0 0;
-    padding: 15px 20px;
+    /* Add button */
+    .btn-add {
+        background: #fff;
+        color: #4f46e5;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 6px 15px;
+        border: none;
+        transition: 0.2s;
+    }
+
+    .btn-add:hover {
+        transform: scale(1.05);
+    }
+
+    /* Filter box */
+    .filter-box {
+        background: #ffffff;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Inputs */
+    .form-control {
+        border-radius: 10px;
+        height: 42px;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+    }
+
+    .form-control:focus {
+        border-color: #6366f1;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    /* Button */
+    .btn-primary {
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        border: none;
+        border-radius: 10px;
+        transition: 0.2s;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Table */
+    .table {
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .table thead th {
+        border: none;
+        color: #6b7280;
+        font-weight: 600;
+    }
+
+    .table tbody tr {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: 0.2s;
+    }
+
+    .table tbody tr:hover {
+        transform: translateY(-2px);
+    }
+
+    .table td {
+        border: none !important;
+        padding: 15px;
+        vertical-align: middle;
+    }
+
+    /* Empty state */
+    .text-muted {
+        font-style: italic;
+    }
+
+
+    #pageLoader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.7);
+    z-index: 9999;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: center;
 }
 
-/* Add button */
-.btn-add {
-    background: #fff;
-    color: #4f46e5;
-    font-weight: 600;
-    border-radius: 10px;
-    padding: 6px 15px;
-    border: none;
-    transition: 0.2s;
-}
-.btn-add:hover {
-    transform: scale(1.05);
+.loader-box {
+    text-align: center;
 }
 
-/* Filter box */
-.filter-box {
-    background: #ffffff;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ddd;
+    border-top: 4px solid #6366f1;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: auto;
 }
 
-/* Inputs */
-.form-control {
-    border-radius: 10px;
-    height: 42px;
-    border: 1px solid #e5e7eb;
-    background: #f9fafb;
+@keyframes spin {
+    100% { transform: rotate(360deg); }
 }
-.form-control:focus {
-    border-color: #6366f1;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
-}
-
-/* Button */
-.btn-primary {
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
-    border: none;
-    border-radius: 10px;
-    transition: 0.2s;
-}
-.btn-primary:hover {
-    transform: translateY(-2px);
-}
-
-/* Table */
-.table {
-    border-collapse: separate;
-    border-spacing: 0 10px;
-}
-
-.table thead th {
-    border: none;
-    color: #6b7280;
-    font-weight: 600;
-}
-
-.table tbody tr {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transition: 0.2s;
-}
-
-.table tbody tr:hover {
-    transform: translateY(-2px);
-}
-
-.table td {
-    border: none !important;
-    padding: 15px;
-    vertical-align: middle;
-}
-
-/* Empty state */
-.text-muted {
-    font-style: italic;
-}
-
 </style>
 
 <div class="page-container">
+    <div id="pageLoader" style="display:none;">
+        <div class="loader-box">
+            <div class="spinner"></div>
+            <p>Loading modules...</p>
+        </div>
+    </div>
 
     <div class="card card-custom">
 
@@ -141,7 +180,7 @@
                         <select id="management" class="form-control">
                             <option value="">-- Select --</option>
                             @foreach($managements as $m)
-                                <option value="{{ $m->id }}">{{ $m->name }}</option>
+                            <option value="{{ $m->id }}">{{ $m->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -194,93 +233,143 @@
 </div>
 
 <script>
+    $(document).ready(function() {
 
-$(document).ready(function(){
-    
-    let subUrl = "{{ url('admin/get-submanagement') }}";
-    let moduleUrl = "{{ url('admin/get-modules') }}";
-    let moduleBaseUrl = "{{ url('admin/module') }}";
+        let subUrl = "{{ url('admin/get-submanagement') }}";
+        let moduleUrl = "{{ url('admin/get-modules') }}";
+        let moduleBaseUrl = "{{ url('admin/module') }}";
 
-    // 🔽 Load SubManagement
-    $('#management').on('change', function(){
+        // 🔽 Load SubManagement
+        $('#management').on('change', function() {
 
-        let id = $(this).val();
+            let id = $(this).val();
 
-        if(!id){
-            $('#submanagement').html('<option value="">-- Select --</option>');
-            return;
-        }
+            if (!id) {
+                $('#submanagement').html('<option value="">-- Select --</option>');
+                return;
+            }
 
-        $('#submanagement').html('<option>Loading...</option>');
+            $('#submanagement').html('<option>Loading...</option>');
 
-        $.ajax({
-            url: subUrl + '/' + id,
-            type: "GET",
-            success: function(data){
+            $.ajax({
+                url: subUrl + '/' + id,
+                type: "GET",
+                success: function(data) {
 
-                console.log(data)
+                    console.log(data)
 
-                let html = '<option value="">-- Select --</option>';
+                    let html = '<option value="">-- Select --</option>';
 
-                if(data.length > 0){
-                    data.forEach(item => {
-                        html += `<option value="${item.id}" data-slug="${item.slug}">
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            html += `<option value="${item.id}" data-slug="${item.slug}">
                                     ${item.name}
                                  </option>`;
-                    });
-                }else{
-                    html = '<option value="">No SubManagement Found</option>';
-                }
+                        });
+                    } else {
+                        html = '<option value="">No SubManagement Found</option>';
+                    }
 
-                $('#submanagement').html(html);
-            },
-            error: function(){
-                alert('Error loading SubManagement');
+                    $('#submanagement').html(html);
+                },
+                error: function() {
+                    alert('Error loading SubManagement');
+                }
+            });
+
+        });
+
+
+        // 🔽 Load Modules
+        $('#loadData').on('click', function() {
+
+            let sub_id = $('#submanagement').val();
+            let slug = $('#submanagement option:selected').data('slug');
+
+            if (!sub_id) {
+                alert('Please select SubManagement');
+                return;
             }
+
+            // ✅ Set Add Button dynamically
+            $('#addBtn')
+                .show()
+                .attr('href', moduleBaseUrl + '/' + slug + '/create');
+
+            // ✅ Load module table
+            $('#pageLoader').fadeIn(200);   
+            $.ajax({
+                url: moduleUrl,
+                type: "POST",
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    submanagement_id: sub_id
+                },
+                success: function(data) {
+                    $('#moduleBody').html(data);
+                    $('#pageLoader').fadeOut(200);
+                },
+                error: function() {
+                    alert('Error loading modules');
+                    $('#pageLoader').fadeOut(200);
+                }
+            });
+
         });
 
     });
+</script>
 
 
-    // 🔽 Load Modules
-    $('#loadData').on('click', function(){
+<script>
+    $(document).ready(function() {
 
-        let sub_id = $('#submanagement').val();
-        let slug = $('#submanagement option:selected').data('slug');
+        let selectedSubId = "{{ $selectedSub->id ?? '' }}";
+        let selectedSubSlug = "{{ $selectedSub->slug ?? '' }}";
+        let selectedManagementId = "{{ $selectedSub->management_id ?? '' }}";
 
-        if(!sub_id){
-            alert('Please select SubManagement');
-            return;
+        let subUrl = "{{ url('admin/get-submanagement') }}";
+
+        // 👉 If coming from VIEW button
+        if (selectedSubId) {
+            $('#pageLoader').fadeIn(200);
+
+            // 1️⃣ Set management dropdown
+            $('#management').val(selectedManagementId).trigger('change');
+
+            // 2️⃣ Load submanagement dropdown via AJAX
+            setTimeout(function() {
+
+                $.ajax({
+                    url: subUrl + '/' + selectedManagementId,
+                    type: "GET",
+                    success: function(data) {
+
+                        let html = '<option value="">-- Select --</option>';
+
+                        data.forEach(item => {
+                            html += `<option value="${item.id}" data-slug="${item.slug}">
+                                ${item.name}
+                             </option>`;
+                        });
+
+                        $('#submanagement').html(html);
+
+                        // 3️⃣ Select correct submanagement
+                        $('#submanagement').val(selectedSubId);
+
+                        // 4️⃣ AUTO CLICK LOAD BUTTON 🚀
+                        $('#loadData').click();
+
+                    }
+                });
+
+            }, 300); // small delay to ensure UI ready
         }
 
-        // ✅ Set Add Button dynamically
-        $('#addBtn')
-            .show()
-            .attr('href', moduleBaseUrl + '/' + slug + '/create');
-
-        // ✅ Load module table
-        $.ajax({
-            url: moduleUrl,
-            type: "POST",
-            data: {
-                _token: '{{ csrf_token() }}',
-                submanagement_id: sub_id
-            },
-            success: function(data){
-                $('#moduleBody').html(data);
-            },
-            error: function(){
-                alert('Error loading modules');
-            }
-        });
-
     });
-
-});
 </script>
 
 
 
 @endsection
-
-
