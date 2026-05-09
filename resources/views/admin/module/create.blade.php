@@ -115,39 +115,51 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
 <script>
-    const editor = new toastui.Editor({
-        el: document.querySelector('#editor'),
-        height: '400px',
-        initialEditType: 'markdown', // markdown + preview
-        previewStyle: 'vertical', // side-by-side like Notion
-        placeholder: 'Write something...',
+    $(document).ready(function() {
 
-        hooks: {
-            addImageBlobHook: async (blob, callback) => {
-                const formData = new FormData();
-                formData.append('image', blob);
+        const editor = new toastui.Editor({
+            el: document.querySelector('#editor'),
+            height: '400px',
+            initialEditType: 'markdown',
+            previewStyle: 'vertical',
+            placeholder: 'Write something...',
 
-                const response = await fetch("{{ route('upload.image') }}", {
-                    method: "POST",
-                    headers: {
-                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                    },
-                    body: formData
-                });
+            hooks: {
+                addImageBlobHook: async (blob, callback) => {
 
-                const data = await response.json();
+                    const formData = new FormData();
+                    formData.append('image', blob);
 
-                // insert image into markdown
-                callback(data.url, 'image');
+                    const response = await fetch("{{ route('upload.image') }}", {
+                        method: "POST",
+                        headers: {
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                        },
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    callback(data.url, 'image');
+                }
             }
-        }
-    });
+        });
 
-    // before submit, put markdown into hidden input
-    document.querySelector("form").addEventListener("submit", function() {
-        document.querySelector("#description").value = editor.getMarkdown();
+        $("form").on("submit", function(e) {
+
+            e.preventDefault();
+
+            let markdown = editor.getMarkdown();
+
+            $("#description").val(markdown);
+
+            this.submit();
+        });
+
     });
 </script>
 

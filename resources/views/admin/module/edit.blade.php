@@ -126,20 +126,23 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
 
 <script>
+$(document).ready(function () {
+
     const editor = new toastui.Editor({
         el: document.querySelector('#editor'),
         height: '400px',
         initialEditType: 'markdown',
         previewStyle: 'vertical',
 
-        // ✅ Use markdown_content (IMPORTANT)
-        initialValue: @json($module->markdown_content ?? ''), 
+        initialValue: @json($module->markdown_content ?? ''),
 
         hooks: {
             addImageBlobHook: async (blob, callback) => {
+
                 const formData = new FormData();
                 formData.append('image', blob);
 
@@ -152,14 +155,23 @@
                 });
 
                 const data = await response.json();
+
                 callback(data.url, 'image');
             }
         }
     });
 
-    // submit markdown
-    document.querySelector("form").addEventListener("submit", function () {
-        document.querySelector("#description").value = editor.getMarkdown();
+    $("form").on("submit", function(e) {
+
+        e.preventDefault();
+
+        let markdown = editor.getMarkdown();
+
+        $("#description").val(markdown);
+
+        this.submit();
     });
+
+});
 </script>
 @endsection

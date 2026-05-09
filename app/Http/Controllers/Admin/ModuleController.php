@@ -115,10 +115,10 @@ class ModuleController extends Controller
             }
 
             $request->validate([
-                'title' => 'required|required',
-                'description' => 'nullable|required',
-                'summary' => 'nullable|required',
-                'youtube_link' => 'nullable|required',
+                'title' => 'required|string',
+                'description' => 'required|string',
+                'summary' => 'required|string',
+                'youtube_link' => 'nullable',
                 'pdf_file' => 'nullable|file|mimes:pdf',
                 'reading_time' => 'required|integer|min:1'
             ]);
@@ -215,12 +215,12 @@ class ModuleController extends Controller
             }
 
             $request->validate([
-                'title' => 'required',
-                'description' => 'nullable',
+                'title' => 'required|string',
+                'description' => 'required|string',
                 'youtube_link' => 'nullable',
                 'pdf_file' => 'nullable|file|mimes:pdf',
                 'reading_time' => 'required|integer|min:1',
-                'summary' => 'nullable|required',
+                'summary' => 'required|string',
             ]);
             // ✅ Update main fields
             $module->update([
