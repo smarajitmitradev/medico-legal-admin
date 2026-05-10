@@ -344,6 +344,46 @@
         }
 
     }
+
+
+    .secure-input-group {
+        position: relative;
+    }
+
+    .secure-input-group input,
+    .secure-input-group textarea {
+        padding-right: 80px;
+    }
+
+    .secure-actions {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        display: flex;
+        gap: 10px;
+        z-index: 5;
+    }
+
+    .secure-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        border: none;
+        background: #f1f5f9;
+        color: #334155;
+        transition: 0.3s;
+    }
+
+    .secure-btn:hover {
+        background: #2563eb;
+        color: #fff;
+    }
+
+    .secure-btn.active {
+        background: #2563eb;
+        color: #fff;
+    }
 </style>
 
 <div class="container-fluid settings-page py-4">
@@ -518,17 +558,124 @@
                                     </div>
 
                                     <!-- FCM KEY -->
+                                    <!-- FCM KEY -->
                                     <div class="mb-4">
 
                                         <label class="form-label">
                                             Firebase FCM Server Key
                                         </label>
 
-                                        <textarea name="fcm_key" class="form-control" rows="6" placeholder="Enter Firebase Cloud Messaging server key here...">{{ $settings['fcm_key'] ?? '' }}</textarea>
+                                        <div class="secure-input-group">
+
+                                            <textarea name="fcm_key" id="fcm_key" class="form-control secure-field" rows="6" readonly data-real="{{ $settings['fcm_key'] ?? '' }}">***********************</textarea>
+
+                                            <div class="secure-actions">
+
+                                                <!-- SHOW -->
+                                                <button type="button" class="secure-btn" onclick="toggleView('fcm_key', this)">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </button>
+
+                                                <!-- EDIT -->
+                                                <button type="button" class="secure-btn" onclick="toggleEdit('fcm_key', this)">
+                                                    <i class="fa-solid fa-pen"></i>
+                                                </button>
+
+                                            </div>
+
+                                        </div>
 
                                         <small class="text-muted mt-2 d-block">
                                             Used for sending push notifications to mobile devices.
                                         </small>
+
+                                    </div>
+
+                                    <div class="row g-4">
+
+                                        <!-- FIREBASE JSON -->
+                                        <div class="col-md-12">
+
+                                            <label class="form-label fw-semibold">
+                                                Firebase Service JSON File
+                                            </label>
+
+                                            <input type="file" name="firebase_json" class="form-control">
+
+                                            @if(!empty($settings['firebase_json']))
+                                            <small class="text-success d-block mt-2">
+                                                Current File:
+                                                {{ $settings['firebase_json'] }}
+                                            </small>
+                                            @endif
+
+                                            <small class="text-muted d-block mt-2">
+                                                Upload Firebase Admin SDK JSON file downloaded from Firebase Console.
+                                            </small>
+
+                                        </div>
+
+                                        <!-- 2FACTOR API -->
+                                        <div class="col-md-12">
+
+                                            <label class="form-label fw-semibold">
+                                                2Factor API Key (SMS Gateway API)
+                                            </label>
+
+                                            <div class="secure-input-group">
+
+                                                <input type="password" name="twofactor_api_key" id="twofactor_api_key" class="form-control secure-field" readonly value="{{ $settings['twofactor_api_key'] ?? '' }}">
+
+                                                <div class="secure-actions">
+
+                                                    <button type="button" class="secure-btn" onclick="togglePassword('twofactor_api_key', this)">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </button>
+
+                                                    <button type="button" class="secure-btn" onclick="toggleEdit('twofactor_api_key', this)">
+                                                        <i class="fa-solid fa-pen"></i>
+                                                    </button>
+
+                                                </div>
+
+                                            </div>
+
+                                            <small class="text-muted d-block mt-2">
+                                                Used for sending OTP SMS to mobile numbers.
+                                            </small>
+
+                                        </div>
+
+                                        <!-- OTP TEMPLATE -->
+                                        <div class="col-md-12">
+
+                                            <label class="form-label fw-semibold">
+                                                OTP SMS Template Name
+                                            </label>
+
+                                            <div class="secure-input-group">
+
+                                                <input type="password" name="otp_template" id="otp_template" class="form-control secure-field" readonly value="{{ $settings['otp_template'] ?? 'HEALTH_LOGIN_OTP' }}">
+
+                                                <div class="secure-actions">
+
+                                                    <button type="button" class="secure-btn" onclick="togglePassword('otp_template', this)">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </button>
+
+                                                    <button type="button" class="secure-btn" onclick="toggleEdit('otp_template', this)">
+                                                        <i class="fa-solid fa-pen"></i>
+                                                    </button>
+
+                                                </div>
+
+                                            </div>
+
+                                            <small class="text-muted d-block mt-2">
+                                                Template name configured inside your 2Factor account.
+                                            </small>
+
+                                        </div>
 
                                     </div>
 
@@ -718,5 +865,78 @@
     </div>
 
 </div>
+
+<script>
+
+    // SHOW/HIDE PASSWORD INPUT
+    function togglePassword(id, btn)
+    {
+        let input = document.getElementById(id);
+
+        if (input.type === "password") {
+
+            input.type = "text";
+
+            btn.classList.add('active');
+
+            btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+
+        } else {
+
+            input.type = "password";
+
+            btn.classList.remove('active');
+
+            btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+        }
+    }
+
+    // SHOW/HIDE TEXTAREA VALUE
+    function toggleView(id, btn)
+    {
+        let textarea = document.getElementById(id);
+
+        let realValue = textarea.getAttribute('data-real');
+
+        if (textarea.value === '***********************') {
+
+            textarea.value = realValue;
+
+            btn.classList.add('active');
+
+            btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+
+        } else {
+
+            textarea.value = '***********************';
+
+            btn.classList.remove('active');
+
+            btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+        }
+    }
+
+    // ENABLE EDIT
+    function toggleEdit(id, btn)
+    {
+        let input = document.getElementById(id);
+
+        if (input.hasAttribute('readonly')) {
+
+            input.removeAttribute('readonly');
+
+            input.focus();
+
+            btn.classList.add('active');
+
+        } else {
+
+            input.setAttribute('readonly', true);
+
+            btn.classList.remove('active');
+        }
+    }
+
+</script>
 
 @endsection

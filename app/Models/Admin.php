@@ -18,6 +18,7 @@ class Admin extends Authenticatable
         'password',
         'phone',
         'otp',
+        'profile_pic',
         'otp_expires_at',
         'otp_locked_until'
     ];

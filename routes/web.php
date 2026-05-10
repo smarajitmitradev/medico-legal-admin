@@ -60,6 +60,9 @@ Route::prefix('admin')->group(function () {
 
         Route::post('profile-update', [DashboardController::class, 'updateProfile'])
             ->name('admin.profile.update');
+        // ROUTE
+        Route::post('avatar-update', [DashboardController::class, 'avatarUpdate'])
+            ->name('admin.avatar.update');
 
 
         Route::prefix('module/{sub_slug}')->group(function () {

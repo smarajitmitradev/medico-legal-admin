@@ -44,6 +44,9 @@ class SettingController extends Controller
 
             // NOTIFICATION
             'fcm_key'             => 'nullable|string',
+            'firebase_json'       => 'nullable|file|mimes:json|max:5120',
+            'twofactor_api_key'   => 'nullable|string|max:255',
+            'otp_template'        => 'nullable|string|max:255',
 
             // SECURITY
             'otp_expiry'          => 'nullable|numeric',
@@ -63,27 +66,29 @@ class SettingController extends Controller
         $data = [
 
             // GENERAL
-            'app_name'            => $request->app_name,
-            'contact_email'       => $request->contact_email,
-            'contact_phone'       => $request->contact_phone,
-            'timezone'            => $request->timezone,
+            'app_name'                  => $request->app_name,
+            'contact_email'             => $request->contact_email,
+            'contact_phone'             => $request->contact_phone,
+            'timezone'                  => $request->timezone,
 
             // NOTIFICATION
-            'fcm_key'                  => $request->fcm_key,
+            'fcm_key'                   => $request->fcm_key,
+            'twofactor_api_key'         => $request->twofactor_api_key,
+            'otp_template'              => $request->otp_template,
             'push_notification_enabled' => $request->push_notification_enabled ? 1 : 0,
-            'notification_sound'       => $request->notification_sound ? 1 : 0,
-            'auto_notification'        => $request->auto_notification ? 1 : 0,
+            'notification_sound'        => $request->notification_sound ? 1 : 0,
+            'auto_notification'         => $request->auto_notification ? 1 : 0,
 
             // SECURITY
-            'otp_expiry'          => $request->otp_expiry,
-            'login_attempt_limit' => $request->login_attempt_limit,
-            'maintenance_mode'    => $request->maintenance_mode ? 1 : 0,
+            'otp_expiry'                => $request->otp_expiry,
+            'login_attempt_limit'       => $request->login_attempt_limit,
+            'maintenance_mode'          => $request->maintenance_mode ? 1 : 0,
 
             // SMTP
-            'smtp_host'           => $request->smtp_host,
-            'smtp_port'           => $request->smtp_port,
-            'smtp_username'       => $request->smtp_username,
-            'smtp_password'       => $request->smtp_password,
+            'smtp_host'                 => $request->smtp_host,
+            'smtp_port'                 => $request->smtp_port,
+            'smtp_username'             => $request->smtp_username,
+            'smtp_password'             => $request->smtp_password,
         ];
 
         // ============================
@@ -131,6 +136,29 @@ class SettingController extends Controller
             );
         }
 
-        return back()->with('success', 'Settings updated successfully');
+        // ============================
+        // FIREBASE JSON UPLOAD
+        // ============================
+        if ($request->hasFile('firebase_json')) {
+
+            $firebase = $request->file('firebase_json');
+
+            $firebaseName = time() . '_firebase.json';
+
+            $firebase->move(
+                storage_path('app/firebase'),
+                $firebaseName
+            );
+
+            Setting::updateOrCreate(
+                ['key' => 'firebase_json'],
+                ['value' => $firebaseName]
+            );
+        }
+
+        return back()->with(
+            'success',
+            'Settings updated successfully'
+        );
     }
 }
