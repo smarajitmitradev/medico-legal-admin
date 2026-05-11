@@ -1,73 +1,242 @@
-<nav class="navbar navbar-light bg-white shadow-sm px-3">
+<nav class="main-header navbar navbar-expand navbar-white navbar-light">
 
-    <!-- Left: Sidebar Toggle -->
-    <button class="btn btn-outline-dark" id="toggleSidebar">
-        <i class="bi bi-list"></i>
-    </button>
+    <!-- Left -->
+    <ul class="navbar-nav">
 
-    <!-- Right: Profile Dropdown -->
-    <div class="ms-auto dropdown">
-        @php
+        <li class="nav-item">
 
-        $user = \App\Models\Admin::find(session('admin_id'));
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button">
 
-        $fullName = $user->name ?? '';
+                <i class="fas fa-bars"></i>
 
-        $nameParts = explode(' ', $fullName, 2);
+            </a>
 
-        @endphp
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="index3.html" class="nav-link">Home</a>
+        </li>
+        <li class="nav-item d-none d-sm-inline-block">
+            <a href="#" class="nav-link">Contact</a>
+        </li>
 
-        <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+    </ul>
 
-            <!-- Profile Image -->
-            <img src="{{ $user->profile_pic ? asset('uploads/profile/'.$user->profile_pic) : 'https://i.pravatar.cc/120' }}" class="rounded-circle me-2" width="40" height="40" alt="Profile">
+    <!-- Right -->
+    <!-- RIGHT NAVBAR -->
+    <ul class="navbar-nav ms-auto">
 
-            <!-- Username -->
-            <span class="fw-semibold text-dark">Admin</span>
-        </a>
+        <!-- SEARCH -->
+        <li class="nav-item">
+            <a class="nav-link" data-widget="navbar-search" href="#" role="button">
+                <i class="fas fa-search"></i>
+            </a>
 
-        <!-- Dropdown Menu -->
-        <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+            <div class="navbar-search-block">
+                <form class="form-inline">
+                    <div class="input-group input-group-sm">
 
+                        <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
 
-            <!-- PROFILE DROPDOWN ITEM -->
-            <li>
-                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+                        <button class="btn btn-navbar" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
 
-                    <i class="bi bi-person me-2"></i> Profile
+                        <button class="btn btn-navbar" type="button" data-widget="navbar-search">
+                            <i class="fas fa-times"></i>
+                        </button>
+
+                    </div>
+                </form>
+            </div>
+        </li>
+
+        <!-- MESSAGES -->
+        <li class="nav-item dropdown">
+
+            <a class="nav-link" data-bs-toggle="dropdown" href="#">
+                <i class="far fa-comments"></i>
+
+                <span class="badge bg-danger navbar-badge">
+                    3
+                </span>
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+
+                <a href="#" class="dropdown-item">
+
+                    <div class="d-flex">
+
+                        <img src="{{ asset('img/user1-128x128.jpg') }}" class="img-size-50 rounded-circle me-3" alt="User">
+
+                        <div>
+
+                            <h6 class="dropdown-item-title mb-1">
+                                Brad Diesel
+                                <span class="float-end text-danger">
+                                    <i class="fas fa-star"></i>
+                                </span>
+                            </h6>
+
+                            <p class="text-sm mb-0">
+                                Call me whenever you can...
+                            </p>
+
+                            <small class="text-muted">
+                                <i class="far fa-clock me-1"></i>
+                                4 Hours Ago
+                            </small>
+
+                        </div>
+
+                    </div>
+
                 </a>
-            </li>
 
+                <div class="dropdown-divider"></div>
 
-
-
-            <li>
-                <a class="dropdown-item" href="#">
-                    <i class="bi bi-gear me-2"></i> Settings
+                <a href="#" class="dropdown-item dropdown-footer">
+                    See All Messages
                 </a>
-            </li>
 
-            <!-- AVATAR DROPDOWN ITEM -->
-            <li>
-                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#avatarModal">
+            </div>
 
-                    <i class="bi bi-image me-2"></i> Avatar
+        </li>
+
+        <!-- NOTIFICATIONS -->
+        <li class="nav-item dropdown">
+
+            <a class="nav-link" data-bs-toggle="dropdown" href="#">
+                <i class="far fa-bell"></i>
+
+                <span class="badge bg-warning navbar-badge">
+                    15
+                </span>
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+
+                <span class="dropdown-item dropdown-header">
+                    15 Notifications
+                </span>
+
+                <div class="dropdown-divider"></div>
+
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-envelope me-2"></i>
+                    4 new messages
+
+                    <span class="float-end text-muted text-sm">
+                        3 mins
+                    </span>
                 </a>
-            </li>
 
-            <li>
-                <hr class="dropdown-divider">
-            </li>
+                <div class="dropdown-divider"></div>
 
-            <li>
-                <a class="dropdown-item text-danger" href="{{route('admin.logout')}}">
-                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                <a href="#" class="dropdown-item">
+                    <i class="fas fa-users me-2"></i>
+                    8 friend requests
+
+                    <span class="float-end text-muted text-sm">
+                        12 hours
+                    </span>
                 </a>
-            </li>
 
-        </ul>
+                <div class="dropdown-divider"></div>
 
-    </div>
+                <a href="#" class="dropdown-item dropdown-footer">
+                    See All Notifications
+                </a>
+
+            </div>
+
+        </li>
+
+        <!-- FULLSCREEN -->
+        <li class="nav-item">
+
+            <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+
+                <i class="fas fa-expand-arrows-alt"></i>
+
+            </a>
+
+        </li>
+
+        <!-- CONTROL SIDEBAR -->
+        <li class="nav-item">
+
+            <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+
+                <i class="fas fa-th-large"></i>
+
+            </a>
+
+        </li>
+
+        <!-- PROFILE -->
+        <li class="nav-item dropdown">
+
+            @php
+
+            $user = \App\Models\Admin::find(session('admin_id'));
+
+            $fullName = $user->name ?? '';
+
+            $nameParts = explode(' ', $fullName, 2);
+
+            @endphp
+
+            <a class="nav-link d-flex align-items-center" data-bs-toggle="dropdown" href="#">
+
+                <img src="{{ $user->profile_pic ? asset('uploads/profile/'.$user->profile_pic) : 'https://i.pravatar.cc/120' }}" class="rounded-circle me-2" width="35" height="35">
+
+                <span>Admin</span>
+
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-end">
+
+                <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#profileModal">
+
+                    <i class="fas fa-user me-2"></i>
+                    Profile
+
+                </a>
+
+                <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#avatarModal">
+
+                    <i class="fas fa-image me-2"></i>
+                    Avatar
+
+                </a>
+
+
+                <!-- AI CHAT OPTION -->
+                <!-- AI CHAT BUTTON -->
+                <a href="#" class="dropdown-item rounded-3 py-2" data-bs-toggle="modal" data-bs-target="#aiChatModal">
+
+                    <i class="fas fa-robot me-2 text-success"></i>
+                    Ask AI
+
+                    <span class="badge bg-success ms-2">New</span>
+
+                </a>
+
+                <div class="dropdown-divider"></div>
+
+                <a href="{{ route('admin.logout') }}" class="dropdown-item text-danger">
+
+                    <i class="fas fa-sign-out-alt me-2"></i>
+                    Logout
+
+                </a>
+
+            </div>
+
+        </li>
+
+    </ul>
 
 </nav>
 
@@ -392,6 +561,134 @@
 
 </div>
 
+<!-- AI CHAT MODAL -->
+<!-- AI CHAT MODAL -->
+<div class="modal fade" id="aiChatModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 bg-transparent">
+
+            <div class="bg-white rounded-[32px] shadow-2xl overflow-hidden border border-slate-200">
+
+                <!-- HEADER -->
+                <div class="relative overflow-hidden">
+
+                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500"></div>
+
+                    <div class="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
+
+                    <div class="relative z-10 px-8 py-6 flex items-center justify-between">
+
+                        <div class="flex items-center gap-4">
+
+                            <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/20 flex items-center justify-center shadow-lg">
+                                <i class="fas fa-robot text-white text-3xl"></i>
+                            </div>
+
+                            <div>
+                                <h2 class="text-2xl font-bold text-white mb-1">
+                                    AI Assistant
+                                </h2>
+
+                                <p class="text-indigo-100 text-sm mb-0">
+                                    Powered by Groq AI • Smart Admin Support
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <button type="button"
+                                data-bs-dismiss="modal"
+                                class="w-12 h-12 rounded-2xl bg-white/20 hover:bg-white/30 transition-all duration-300 text-white border border-white/20">
+
+                            <i class="fas fa-times text-lg"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CHAT BODY -->
+                <div class="bg-slate-100">
+
+                    <div id="chatBox"
+                         class="h-[350px] overflow-y-auto px-6 py-6 space-y-6 scroll-smooth">
+
+
+
+                        <!-- AI MESSAGE -->
+                        <div class="flex items-start gap-4">
+
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg shrink-0">
+                                <i class="fas fa-robot"></i>
+                            </div>
+
+                            <div class="max-w-[75%]">
+
+                                <div class="bg-white rounded-[24px] rounded-tl-md px-5 py-4 shadow-md border border-slate-100">
+
+                                    <p class="text-slate-700 leading-relaxed mb-0">
+                                        Hello 👋 How can I help you today?
+                                    </p>
+
+                                </div>
+
+                                <span class="text-xs text-slate-400 mt-2 block px-2">
+                                    AI Assistant
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+
+                    </div>
+
+                </div>
+
+
+
+
+                <!-- FOOTER -->
+                <div class="bg-white border-t border-slate-200 p-5">
+
+                    <div class="flex items-center gap-4">
+
+                        <!-- INPUT -->
+                        <div class="flex-1 relative">
+
+                            <input type="text"
+                                   id="message"
+                                   placeholder="Ask anything..."
+                                   class="w-full h-16 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white px-6 pr-16 text-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-300 shadow-sm">
+
+                            <div class="absolute top-1/2 right-5 -translate-y-1/2 text-slate-400">
+                                <i class="fas fa-message"></i>
+                            </div>
+
+                        </div>
+
+                        <!-- SEND BUTTON -->
+                        <button id="sendBtn"
+                                class="w-16 h-16 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:scale-105 hover:shadow-2xl transition-all duration-300 text-white flex items-center justify-center shadow-lg">
+
+                            <i class="fas fa-paper-plane text-lg"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
 
 <style>
     /* MODAL */
@@ -673,49 +970,241 @@
     }
 
 
-    .profile-avatar-wrapper{
-        position:relative;
-        width:72px;
-        height:72px;
-        flex-shrink:0;
+    .profile-avatar-wrapper {
+        position: relative;
+        width: 72px;
+        height: 72px;
+        flex-shrink: 0;
     }
 
-    .profile-avatar-img{
-        width:100%;
-        height:100%;
-        object-fit:cover;
-        border-radius:22px;
+    .profile-avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 22px;
 
-        border:4px solid #fff;
+        border: 4px solid #fff;
 
-        background:#f8fafc;
+        background: #f8fafc;
 
         box-shadow:
-            0 10px 30px rgba(99,102,241,.18);
+            0 10px 30px rgba(99, 102, 241, .18);
     }
 
-    .profile-avatar-badge{
-        position:absolute;
-        right:-2px;
-        bottom:-2px;
+    .profile-avatar-badge {
+        position: absolute;
+        right: -2px;
+        bottom: -2px;
 
-        width:28px;
-        height:28px;
+        width: 28px;
+        height: 28px;
 
-        border-radius:50%;
+        border-radius: 50%;
 
-        background:linear-gradient(135deg,#6366f1,#8b5cf6);
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
 
-        display:flex;
-        align-items:center;
-        justify-content:center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
-        color:#fff;
-        font-size:12px;
+        color: #fff;
+        font-size: 12px;
 
-        border:3px solid #fff;
+        border: 3px solid #fff;
 
         box-shadow:
-            0 6px 16px rgba(99,102,241,.25);
+            0 6px 16px rgba(99, 102, 241, .25);
+    }
+
+
+    /* updated 
+    color */
+    .main-header.navbar {
+        background-color: #343a40 !important;
+        border-color: #4b545c !important;
+    }
+
+    .main-header .nav-link,
+    .main-header .navbar-brand,
+    .main-header .dropdown-toggle {
+        color: #ffffff !important;
+    }
+
+    .main-header .nav-link:hover {
+        color: #dcdcdc !important;
+    }
+
+    .navbar-badge {
+        font-size: 10px !important;
+        padding: 2px 3px !important;
+    }
+
+
+    /* ai modal */
+
+    /* MODAL ANIMATION */
+    #aiChatModal .modal-content {
+        animation: popupScale 0.35s ease;
+    }
+
+    @keyframes popupScale {
+        0% {
+            opacity: 0;
+            transform: scale(.92) translateY(20px);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* GLASS EFFECT */
+    #aiChatModal .modal-dialog {
+        backdrop-filter: blur(8px);
+    }
+
+    /* CUSTOM SCROLLBAR */
+    #chatBox::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #chatBox::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    #chatBox::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #6366f1, #a855f7);
+        border-radius: 20px;
+    }
+
+    /* CHAT BOX BACKGROUND */
+    #chatBox {
+        background:
+            radial-gradient(circle at top right,
+                rgba(99, 102, 241, 0.08),
+                transparent 25%),
+            radial-gradient(circle at bottom left,
+                rgba(168, 85, 247, 0.08),
+                transparent 25%),
+            #f8fafc;
+    }
+
+    /* INPUT GLOW */
+    #message:focus {
+        box-shadow:
+            0 0 0 4px rgba(99, 102, 241, 0.12),
+            0 10px 25px rgba(99, 102, 241, 0.15);
+    }
+
+    /* SEND BUTTON EFFECT */
+    #sendBtn {
+        position: relative;
+        overflow: hidden;
+    }
+
+    #sendBtn::before {
+        content: '';
+        position: absolute;
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.2);
+        top: -40px;
+        left: -100px;
+        transform: rotate(25deg);
+        transition: 0.6s;
+    }
+
+    #sendBtn:hover::before {
+        left: 120%;
+    }
+
+    #sendBtn:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 18px 40px rgba(99, 102, 241, 0.35);
+    }
+
+    /* AI AVATAR FLOAT */
+    .fa-robot {
+        animation: floatBot 3s ease-in-out infinite;
+    }
+
+    @keyframes floatBot {
+
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-4px);
+        }
+    }
+
+    /* MESSAGE HOVER */
+    #chatBox .bg-white {
+        transition: all .3s ease;
+    }
+
+    #chatBox .bg-white:hover {
+        transform: translateY(-2px);
+        box-shadow:
+            0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    /* HEADER SHINE */
+    #aiChatModal .relative.overflow-hidden::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -120%;
+        width: 60%;
+        height: 100%;
+        background:
+            linear-gradient(to right,
+                transparent,
+                rgba(255, 255, 255, 0.18),
+                transparent);
+        transform: skewX(-25deg);
+        animation: shine 6s infinite;
+    }
+
+    @keyframes shine {
+        0% {
+            left: -120%;
+        }
+
+        100% {
+            left: 150%;
+        }
+    }
+
+    /* MODAL SHADOW */
+    #aiChatModal .rounded-\[32px\] {
+        box-shadow:
+            0 25px 80px rgba(15, 23, 42, 0.25),
+            0 10px 30px rgba(99, 102, 241, 0.12);
+    }
+
+    /* PLACEHOLDER */
+    #message::placeholder {
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    /* MOBILE RESPONSIVE */
+    @media(max-width:768px) {
+        #chatBox {
+            height: 450px;
+        }
+
+        #aiChatModal .modal-dialog {
+            margin: 10px;
+        }
+
+        #aiChatModal .px-8 {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
     }
 </style>

@@ -677,6 +677,37 @@
 
                                         </div>
 
+                                        <!-- GROQ API KEY -->
+                                        <div class="col-md-12">
+
+                                            <label class="form-label fw-semibold">
+                                                Groq API Key (AI Service)
+                                            </label>
+
+                                            <div class="secure-input-group">
+
+                                                <input type="password" name="groq_api_key" id="groq_api_key" class="form-control secure-field" readonly value="{{ $settings['groq_api_key'] ?? '' }}">
+
+                                                <div class="secure-actions">
+
+                                                    <button type="button" class="secure-btn" onclick="togglePassword('groq_api_key', this)">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </button>
+
+                                                    <button type="button" class="secure-btn" onclick="toggleEdit('groq_api_key', this)">
+                                                        <i class="fa-solid fa-pen"></i>
+                                                    </button>
+
+                                                </div>
+
+                                            </div>
+
+                                            <small class="text-muted d-block mt-2">
+                                                Used for AI features like chat, summarization, and automation.
+                                            </small>
+
+                                        </div>
+
                                     </div>
 
                                     <!-- ENABLE PUSH -->
@@ -867,10 +898,8 @@
 </div>
 
 <script>
-
     // SHOW/HIDE PASSWORD INPUT
-    function togglePassword(id, btn)
-    {
+    function togglePassword(id, btn) {
         let input = document.getElementById(id);
 
         if (input.type === "password") {
@@ -892,8 +921,7 @@
     }
 
     // SHOW/HIDE TEXTAREA VALUE
-    function toggleView(id, btn)
-    {
+    function toggleView(id, btn) {
         let textarea = document.getElementById(id);
 
         let realValue = textarea.getAttribute('data-real');
@@ -917,8 +945,7 @@
     }
 
     // ENABLE EDIT
-    function toggleEdit(id, btn)
-    {
+    function toggleEdit(id, btn) {
         let input = document.getElementById(id);
 
         if (input.hasAttribute('readonly')) {
@@ -936,7 +963,6 @@
             btn.classList.remove('active');
         }
     }
-
 </script>
 
 @endsection

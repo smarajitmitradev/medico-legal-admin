@@ -47,6 +47,7 @@ class SettingController extends Controller
             'firebase_json'       => 'nullable|file|mimes:json|max:5120',
             'twofactor_api_key'   => 'nullable|string|max:255',
             'otp_template'        => 'nullable|string|max:255',
+            'groq_api_key'        => 'nullable|string|max:255',
 
             // SECURITY
             'otp_expiry'          => 'nullable|numeric',
@@ -78,6 +79,8 @@ class SettingController extends Controller
             'push_notification_enabled' => $request->push_notification_enabled ? 1 : 0,
             'notification_sound'        => $request->notification_sound ? 1 : 0,
             'auto_notification'         => $request->auto_notification ? 1 : 0,
+            // AI SERVICE
+            'groq_api_key'              => $request->groq_api_key,
 
             // SECURITY
             'otp_expiry'                => $request->otp_expiry,

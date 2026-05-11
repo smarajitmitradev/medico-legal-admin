@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Frontend\UserPageController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\AiChatController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +65,8 @@ Route::prefix('admin')->group(function () {
         // ROUTE
         Route::post('avatar-update', [DashboardController::class, 'avatarUpdate'])
             ->name('admin.avatar.update');
+        Route::post('/admin/ai-chat/send', [AiChatController::class, 'send'])
+            ->name('admin.ai.chat.send');
 
 
         Route::prefix('module/{sub_slug}')->group(function () {
