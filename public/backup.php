@@ -21,7 +21,8 @@ date_default_timezone_set('Asia/Kolkata');
 
 function envValue($key, $default = null)
 {
-    $path = __DIR__ . '/.env';
+    // $path = __DIR__ . '/.env';
+    $path = dirname(__DIR__) . '/.env';
 
     if (!file_exists($path)) {
         return $default;
@@ -72,7 +73,8 @@ $db   = envValue('DB_DATABASE');
 |--------------------------------------------------------------------------
 */
 
-$backupDir = __DIR__ . '/storage/backups';
+// $backupDir = __DIR__ . '/storage/backups';
+$backupDir = dirname(__DIR__) . '/storage/backups';
 
 /*
 |--------------------------------------------------------------------------
