@@ -7,7 +7,7 @@ date_default_timezone_set('Asia/Kolkata');
 
 /*
 |--------------------------------------------------------------------------
-| READ ENV VALUES
+| READ ENV
 |--------------------------------------------------------------------------
 */
 
@@ -45,15 +45,15 @@ function envValue($key, $default = null)
 
 /*
 |--------------------------------------------------------------------------
-| DATABASE DETAILS
+| DATABASE CONFIG
 |--------------------------------------------------------------------------
 */
 
 $host = envValue('DB_HOST', '127.0.0.1');
 $port = envValue('DB_PORT', '3306');
+$db   = envValue('DB_DATABASE');
 $user = envValue('DB_USERNAME');
 $pass = envValue('DB_PASSWORD');
-$db   = envValue('DB_DATABASE');
 
 /*
 |--------------------------------------------------------------------------
@@ -75,82 +75,122 @@ if (!file_exists($backupDir)) {
 
 $date = date('Y-m-d_H-i-s');
 
-$sqlFile = $backupDir . "/{$db}_{$date}.sql";
+$fileName = $backupDir . "/{$db}_{$date}.sql";
 
 /*
 |--------------------------------------------------------------------------
-| MYSQLDUMP COMMAND
+| CONNECT DATABASE
 |--------------------------------------------------------------------------
 */
 
-$command = "mysqldump "
-    . "--host={$host} "
-    . "--port={$port} "
-    . "--user={$user} "
-    . "--password={$pass} "
-    . "{$db} > {$sqlFile}";
+$conn = new mysqli($host, $user, $pass, $db, $port);
 
-/*
-|--------------------------------------------------------------------------
-| EXECUTE
-|--------------------------------------------------------------------------
-*/
-
-exec($command . " 2>&1", $output, $result);
-
-/*
-|--------------------------------------------------------------------------
-| CHECK RESULT
-|--------------------------------------------------------------------------
-*/
-
-echo "<pre>";
-
-if ($result === 0 && file_exists($sqlFile)) {
-
-    echo "Database backup created successfully.\n";
-
-    /*
-    |--------------------------------------------------------------------------
-    | COMPRESS FILE
-    |--------------------------------------------------------------------------
-    */
-
-    $gzFile = $sqlFile . '.gz';
-
-    $fp = gzopen($gzFile, 'w9');
-
-    gzwrite($fp, file_get_contents($sqlFile));
-
-    gzclose($fp);
-
-    unlink($sqlFile);
-
-    echo "Compressed successfully.\n";
-
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE OLD FILES > 7 DAYS
-    |--------------------------------------------------------------------------
-    */
-
-    foreach (glob($backupDir . '/*.gz') as $file) {
-
-        if (time() - filemtime($file) > (7 * 24 * 60 * 60)) {
-
-            unlink($file);
-        }
-    }
-
-    echo "Old backups cleaned.\n";
-
-    echo "Backup completed successfully.";
-
-} else {
-
-    echo "Backup failed.\n\n";
-
-    print_r($output);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-echo "</pre>"; 
+$conn->set_charset("utf8");
+
+/*
+|--------------------------------------------------------------------------
+| GENERATE SQL
+|--------------------------------------------------------------------------
+*/
+
+$sqlScript = "";
+
+/*
+|--------------------------------------------------------------------------
+| GET TABLES
+|--------------------------------------------------------------------------
+*/
+
+$tables = [];
+
+$result = $conn->query("SHOW TABLES");
+
+while ($row = $result->fetch_row()) {
+    $tables[] = $row[0];
+}
+
+foreach ($tables as $table) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | TABLE STRUCTURE
+    |--------------------------------------------------------------------------
+    */
+
+    $createTable = $conn->query("SHOW CREATE TABLE `$table`")->fetch_row();
+
+    $sqlScript .= "\n\n" . $createTable[1] . ";\n\n";
+
+    /*
+    |--------------------------------------------------------------------------
+    | TABLE DATA
+    |--------------------------------------------------------------------------
+    */
+
+    $rows = $conn->query("SELECT * FROM `$table`");
+
+    while ($row = $rows->fetch_assoc()) {
+
+        $columns = array_keys($row);
+
+        $values = array_map(function ($value) use ($conn) {
+
+            if ($value === null) {
+                return "NULL";
+            }
+
+            return "'" . $conn->real_escape_string($value) . "'";
+
+        }, array_values($row));
+
+        $sqlScript .= "INSERT INTO `$table` (`"
+            . implode('`,`', $columns)
+            . "`) VALUES ("
+            . implode(',', $values)
+            . ");\n";
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| SAVE SQL FILE
+|--------------------------------------------------------------------------
+*/
+
+file_put_contents($fileName, $sqlScript);
+
+/*
+|--------------------------------------------------------------------------
+| COMPRESS
+|--------------------------------------------------------------------------
+*/
+
+$gzFile = $fileName . '.gz';
+
+$fp = gzopen($gzFile, 'w9');
+
+gzwrite($fp, file_get_contents($fileName));
+
+gzclose($fp);
+
+unlink($fileName);
+
+/*
+|--------------------------------------------------------------------------
+| DELETE OLD FILES > 7 DAYS
+|--------------------------------------------------------------------------
+*/
+
+foreach (glob($backupDir . '/*.gz') as $file) {
+
+    if (time() - filemtime($file) > (7 * 24 * 60 * 60)) {
+
+        unlink($file);
+    }
+}
+
+echo "Database backup completed successfully.";
