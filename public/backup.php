@@ -3,7 +3,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-echo "<h2>Backup Test Running...</h2>";
+echo "<h2>Backup Test Running...</h2>";  
 
 echo "<pre>";
 
