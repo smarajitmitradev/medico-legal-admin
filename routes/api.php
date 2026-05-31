@@ -47,6 +47,8 @@ Route::middleware('user.auth.api')->group(function () {
     Route::get('/content/{id}', [ModuleController::class, 'show']);
     Route::get('search', [SearchController::class, 'globalSearch']);
     Route::get('notifications', [NotificationController::class, 'list']);
-
     Route::post('/register-fcm-token', [AuthController::class, 'registerFcmToken']);
+
+    // delete user api
+    Route::delete('/account/delete', [AuthController::class, 'deleteAccount']);
 });

@@ -37,7 +37,10 @@ class ModuleController extends Controller
                     ? asset('storage/' . $content->pdf_file)  
                     : null,
                 'reading_time_in_munites' => $content->reading_time,
-                'thumbnail' => null,
+                // Thumbnail URL
+                'thumbnail' => $content->thumbnail
+                ? asset('storage/' . $content->thumbnail)
+                : null,
                 'is_premium' => false,
                 'created_at' => $content->created_at,
 

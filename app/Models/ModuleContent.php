@@ -15,7 +15,8 @@ class ModuleContent extends Model
         'pdf_file',
         'reading_time',
         'markdown_content',
-        'summary'
+        'summary',
+        'thumbnail',
     ];
 
 

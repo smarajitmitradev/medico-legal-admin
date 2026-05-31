@@ -107,6 +107,54 @@
                     <input type="number" name="reading_time" placeholder="Enter Reading Time" class="form-control">
                 </div>
 
+                <!-- Thumbnail Upload -->
+                <!-- Thumbnail Upload -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        Thumbnail Image
+                    </label>
+
+                    <div class="flex flex-col md:flex-row gap-4">
+
+                        <!-- Upload Box -->
+                        <div class="flex-1">
+                            <label for="thumbnail" class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-blue-400 transition-all duration-300">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+
+                                <span class="text-sm text-gray-600">
+                                    Click to upload thumbnail
+                                </span>
+
+                                <span class="text-xs text-gray-400 mt-1">
+                                    JPG, PNG, WEBP
+                                </span>
+
+                                <input type="file" id="thumbnail" name="thumbnail" accept="image/*" class="hidden">
+                            </label>
+                        </div>
+
+                        <!-- Preview Box -->
+                        <div class="w-full md:w-64">
+                            <div class="border rounded-xl bg-white shadow-sm p-3 h-40 flex items-center justify-center">
+
+                                <img id="thumbnailPreview" src="" alt="Preview" class="hidden w-full h-full object-cover rounded-lg">
+
+                                <div id="previewPlaceholder" class="text-center text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h16v14H4V5zm3 3h.01M4 15l4-4 3 3 5-5 4 4" />
+                                    </svg>
+                                    <p class="text-sm">Image Preview</p>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
                 <div class="text-end">
                     <button class="btn btn-custom">Save</button>
                 </div>
@@ -117,6 +165,19 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#4f46e5',
+                }
+            }
+        }
+    }
+</script>
 
 <script>
     $(document).ready(function() {
@@ -160,6 +221,29 @@
             this.submit();
         });
 
+    });
+</script>
+<script>
+    document.getElementById('thumbnail').addEventListener('change', function(e) {
+
+        const file = e.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+
+                const preview = document.getElementById('thumbnailPreview');
+                const placeholder = document.getElementById('previewPlaceholder');
+
+                preview.src = event.target.result;
+                preview.classList.remove('hidden');
+
+                placeholder.classList.add('hidden');
+            };
+
+            reader.readAsDataURL(file);
+        }
     });
 </script>
 

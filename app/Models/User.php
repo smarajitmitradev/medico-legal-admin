@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     /**
      * Mass assignable fields
@@ -25,9 +26,8 @@ class User extends Authenticatable implements JWTSubject
         'otp_expires_at',
         'refresh_token',
         'device_id',
-        // ✅ NEW (FCM)
         'fcm_token',
-        'temp_fcm_token', // optional
+        'temp_fcm_token',
         'user_type',
         'is_profile_complete',
         'is_premium',
@@ -38,6 +38,7 @@ class User extends Authenticatable implements JWTSubject
         'refresh_token_expires_at',
         'platform',
         'app_id',
+        'delete_reason',
     ];
 
     /**
@@ -48,7 +49,6 @@ class User extends Authenticatable implements JWTSubject
         'refresh_token',
         'remember_token',
         'password',
-        'takeover_expires_at' => 'datetime',
     ];
 
     /**
@@ -57,9 +57,11 @@ class User extends Authenticatable implements JWTSubject
     protected $casts = [
         'otp_expires_at' => 'datetime',
         'premium_expiry_date' => 'datetime',
+        'takeover_expires_at' => 'datetime',
+        'refresh_token_expires_at' => 'datetime',
+        'deleted_at' => 'datetime',
         'is_profile_complete' => 'boolean',
         'is_premium' => 'boolean',
-        'refresh_token_expires_at' => 'datetime',
     ];
 
     /**
@@ -67,7 +69,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTIdentifier()
     {
-        return $this->getKey(); // uses default 'id'
+        return $this->getKey();
     }
 
     /**

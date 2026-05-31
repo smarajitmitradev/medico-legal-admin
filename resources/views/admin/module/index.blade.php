@@ -208,6 +208,7 @@
                     <thead>
                         <tr>
                             <th>Title</th>
+                            <th>Thumbnil</th>
                             <th>Details</th>
                             <th>Time</th>
                             <th>Video</th>

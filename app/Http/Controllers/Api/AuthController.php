@@ -13,7 +13,7 @@ class AuthController extends Controller
 {
     // ✅ Send OTP
     public function sendOtp(Request $request, OtpService
-     $otpService)
+    $otpService)
     {
         $request->validate([
             'mobile_number' => 'required',
@@ -402,6 +402,34 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'FCM token updated successfully'
+        ]);
+    }
+
+
+    public function deleteAccount(Request $request)
+    {
+        $request->validate([
+            'delete_reason' => 'required|string|max:1000'
+        ]);
+
+        $user = auth('api')->user();
+
+        $user->update([
+            'delete_reason' => $request->delete_reason,
+            'otp' => null,
+            'refresh_token' => null,
+            'refresh_token_expires_at' => null,
+            'device_id' => null,
+            'fcm_token' => null,
+            'takeover_token' => null,
+            'takeover_expires_at' => null,
+        ]);
+
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Account deleted successfully'
         ]);
     }
 }

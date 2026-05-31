@@ -120,7 +120,8 @@ class ModuleController extends Controller
                 'summary' => 'required|string',
                 'youtube_link' => 'nullable',
                 'pdf_file' => 'nullable|file|mimes:pdf',
-                'reading_time' => 'required|integer|min:1'
+                'reading_time' => 'required|integer|min:1',
+                'thumbnail'     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             ]);
 
             $module = new ModuleContent();
@@ -140,6 +141,12 @@ class ModuleController extends Controller
             // PDF Upload
             if ($request->hasFile('pdf_file')) {
                 $module->pdf_file = $request->file('pdf_file')->store('pdfs', 'public');
+            }
+
+            // Thumbnail Upload
+            if ($request->hasFile('thumbnail')) {
+                $module->thumbnail = $request->file('thumbnail')
+                    ->store('thumbnails', 'public');
             }
 
             $module->save();
@@ -221,6 +228,7 @@ class ModuleController extends Controller
                 'pdf_file' => 'nullable|file|mimes:pdf',
                 'reading_time' => 'required|integer|min:1',
                 'summary' => 'required|string',
+                'thumbnail' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             ]);
             // ✅ Update main fields
             $module->update([
@@ -241,6 +249,20 @@ class ModuleController extends Controller
 
                 $module->update([
                     'pdf_file' => $request->file('pdf_file')->store('pdfs', 'public')
+                ]);
+            }
+
+            // Thumbnail Update
+            if ($request->hasFile('thumbnail')) {
+
+                if ($module->thumbnail && Storage::disk('public')->exists($module->thumbnail)) {
+                    Storage::disk('public')->delete($module->thumbnail);
+                }
+
+                $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
+
+                $module->update([
+                    'thumbnail' => $thumbnailPath
                 ]);
             }
 

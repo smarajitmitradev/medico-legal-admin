@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ModuleContent;
 use App\Helpers\ContentHelper;
+
 require_once app_path('Helpers/ContentHelper.php');
 
 class SubManagementController extends Controller
@@ -30,7 +31,7 @@ class SubManagementController extends Controller
         // ✅ If sub_management_id exists → filter directly
         if ($subManagementId) {
             $query->where('submanagement_id', $subManagementId);
-        } 
+        }
         // ✅ Otherwise → filter via management
         else {
             $query->whereHas('sub', function ($q) use ($managementId) {
@@ -76,10 +77,14 @@ class SubManagementController extends Controller
                 'sub_management_id' => (string) $item->submanagement_id,
                 'sub_management_name' => (string) optional($item->sub)->name,
                 'title' => $item->title,
-                'summary'=> $item->summary,
+                'summary' => $item->summary,
                 'content_in_detail' => $item->markdown_content,
                 'reading_time_in_munites' => $item->reading_time,
-                'thumbnail' => null,
+                // 'thumbnail' => null,
+                // Thumbnail URL
+                'thumbnail' => $item->thumbnail
+                    ? asset('storage/' . $item->thumbnail)
+                    : null,
                 'video_url' => $item->youtube_link,
                 'pdf_url' => $item->pdf_file,
                 'is_premium' => false,

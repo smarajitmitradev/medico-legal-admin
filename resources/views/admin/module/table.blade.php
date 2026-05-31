@@ -3,6 +3,13 @@
 <tr>
     <td>{{ $module->title }}</td>
     <td>
+        @if($module->thumbnail)
+        <img src="{{ asset('storage/' . $module->thumbnail) }}" alt="Thumbnail" style="width:120px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ddd;">
+        @else
+        <span class="text-muted">No Image</span>
+        @endif
+    </td>
+    <td>
         <div style="
         max-width:300px;
         max-height:120px;
