@@ -17,5 +17,11 @@ class Subscription extends Model
         'expiry_date',
         'status',
         'razorpay_subscription_id'
-    ]; 
+    ];
+
+    // ✅ Add this
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class);
+    }
 }

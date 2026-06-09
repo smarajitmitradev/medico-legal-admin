@@ -11,43 +11,50 @@ class SubscriptionController extends Controller
 {
     public function index(Request $request)
     {
-        $userId = $request->query('user_id');
+        try {
+            $userId = $request->query('user_id');
 
-        $query = Subscription::query();
+            $query = Subscription::query();
 
-        if ($userId) {
-            $query->where('user_id', $userId);
+            if ($userId) {
+                $query->where('user_id', $userId);
+            }
+
+            $subscriptions = $query
+                ->with('user:id,full_name,email,mobile_number')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($sub) {
+                    return [
+                        'id'                       => $sub->id,
+                        'user_id'                  => $sub->user_id,
+                        'user'                     => $sub->user,
+                        'plan_name'                => $sub->plan_name,
+                        'plan_label'               => $this->getPlanLabel($sub->plan_name),
+                        'amount'                   => $sub->amount,
+                        'razorpay_order_id'        => $sub->razorpay_order_id,
+                        'razorpay_payment_id'      => $sub->razorpay_payment_id,
+                        'razorpay_subscription_id' => $sub->razorpay_subscription_id,
+                        'start_date'               => $sub->start_date,
+                        'expiry_date'              => $sub->expiry_date,
+                        'status'                   => $sub->status,
+                        'is_active'                => \Carbon\Carbon::parse($sub->expiry_date)->isFuture(),
+                        'days_remaining'           => max(0, \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($sub->expiry_date), false)),
+                        'created_at'               => $sub->created_at,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'count'   => $subscriptions->count(),
+                'data'    => $subscriptions,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        $subscriptions = $query
-            ->with('user:id,full_name,email,mobile_number')
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($sub) {
-                return [
-                    'id'                       => $sub->id,
-                    'user_id'                  => $sub->user_id,
-                    'user'                     => $sub->user,
-                    'plan_name'                => $sub->plan_name,
-                    'plan_label'               => $this->getPlanLabel($sub->plan_name),
-                    'amount'                   => $sub->amount,
-                    'razorpay_order_id'        => $sub->razorpay_order_id,
-                    'razorpay_payment_id'      => $sub->razorpay_payment_id,
-                    'razorpay_subscription_id' => $sub->razorpay_subscription_id,
-                    'start_date'               => $sub->start_date,
-                    'expiry_date'              => $sub->expiry_date,
-                    'status'                   => $sub->status,
-                    'is_active'                => Carbon::parse($sub->expiry_date)->isFuture(),
-                    'days_remaining'           => max(0, Carbon::now()->diffInDays(Carbon::parse($sub->expiry_date), false)),
-                    'created_at'               => $sub->created_at,
-                ];
-            });
-
-        return response()->json([
-            'success' => true,
-            'count'   => $subscriptions->count(),
-            'data'    => $subscriptions,
-        ]);
     }
 
     private function getPlanLabel($planName)
@@ -60,6 +67,6 @@ class SubscriptionController extends Controller
             '2_year'  => '2 Years',
             '3_year'  => '3 Years',
         ];
-        return $labels[$planName] ?? ucfirst(str_replace('_', ' ', $planName ?? 'N/A')); 
+        return $labels[$planName] ?? ucfirst(str_replace('_', ' ', $planName ?? 'N/A'));
     }
 }
