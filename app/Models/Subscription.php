@@ -17,5 +17,5 @@ class Subscription extends Model
         'expiry_date',
         'status',
         'razorpay_subscription_id'
-    ];
+    ]; 
 }

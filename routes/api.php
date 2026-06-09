@@ -54,4 +54,5 @@ Route::middleware('user.auth.api')->group(function () {
     // delete user api
     Route::delete('/account/delete', [AuthController::class, 'deleteAccount']);
     Route::get('/subscriptions', [SubscriptionController::class, 'index']);
+    
 });
