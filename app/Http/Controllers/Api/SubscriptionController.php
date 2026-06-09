@@ -68,5 +68,7 @@ class SubscriptionController extends Controller
             '3_year'  => '3 Years',
         ];
         return $labels[$planName] ?? ucfirst(str_replace('_', ' ', $planName ?? 'N/A'));
+
+        
     }
 }

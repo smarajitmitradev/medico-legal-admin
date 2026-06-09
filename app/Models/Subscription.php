@@ -24,4 +24,5 @@ class Subscription extends Model
     {
         return $this->belongsTo(\App\Models\User::class);
     }
+    
 }
