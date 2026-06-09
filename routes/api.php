@@ -34,7 +34,6 @@ Route::prefix('auth')->group(function () {
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
     Route::post('/confirm-device-takeover', [AuthController::class, 'confirmDeviceTakeover']);
-    Route::get('/subscriptions', [SubscriptionController::class, 'index']);
 });
 
 Route::middleware('user.auth.api')->group(function () {
