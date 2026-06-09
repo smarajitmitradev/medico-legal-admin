@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\SubManagementController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\SubscriptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +34,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
     Route::post('/confirm-device-takeover', [AuthController::class, 'confirmDeviceTakeover']);
+    Route::get('/subscriptions', [SubscriptionController::class, 'index']);
 });
 
 Route::middleware('user.auth.api')->group(function () {
@@ -51,4 +53,5 @@ Route::middleware('user.auth.api')->group(function () {
 
     // delete user api
     Route::delete('/account/delete', [AuthController::class, 'deleteAccount']);
+    Route::get('/subscriptions', [SubscriptionController::class, 'index']);
 });
