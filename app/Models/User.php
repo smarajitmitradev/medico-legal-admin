@@ -39,6 +39,8 @@ class User extends Authenticatable implements JWTSubject
         'platform',
         'app_id',
         'delete_reason',
+        'subscription_expiry',
+        'current_plan',
     ];
 
     /**

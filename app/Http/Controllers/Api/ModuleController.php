@@ -40,7 +40,7 @@ class ModuleController extends Controller
                 // Thumbnail URL
                 'thumbnail' => $content->thumbnail
                 ? asset('storage/' . $content->thumbnail)
-                : null,
+                : asset('img/dummy-thumb-nil.png'),
                 'is_premium' => false,
                 'created_at' => $content->created_at,
 

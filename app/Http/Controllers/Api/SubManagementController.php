@@ -84,7 +84,7 @@ class SubManagementController extends Controller
                 // Thumbnail URL
                 'thumbnail' => $item->thumbnail
                     ? asset('storage/' . $item->thumbnail)
-                    : null,
+                    : asset('img/dummy-thumb-nil.png'),
                 'video_url' => $item->youtube_link,
                 'pdf_url' => $item->pdf_file,
                 'is_premium' => false,
