@@ -112,6 +112,18 @@
 
                 <li class="nav-item">
 
+                    <a href="{{ route('subscriptions.index') }}" class="nav-link {{ request()->routeIs('subscriptions.*') ? 'active' : '' }}">
+
+                        <i class="nav-icon fas fa-receipt"></i>
+
+                        <p>Subscriptions</p>
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
                     <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
 
                         <i class="nav-icon fas fa-cog"></i>

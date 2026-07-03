@@ -40,7 +40,7 @@
         <h3 class="font-semibold mt-6 mb-2">1. STATUTORY FRAMEWORK, OWNERSHIP & SCOPE</h3>
         <p>This Privacy Policy (“Policy”) is a digital mandate published in accordance with the <b>Information Technology Act, 2000</b> and the <b>Digital Personal Data Protection Act (DPDPA), 2023</b>.</p>
 
-        <p><b>Lawcription</b> is a digital platform and brand operated under <b>Healthcription</b>, a sole proprietorship owned by Mrs. Poulomi Debnath. For the purpose of this Policy, <b>Healthcription</b> (operating as "Lawcription") shall be the <b>"Data Fiduciary"</b> responsible for protecting the privacy of its Users (<b>"Data Principals"</b>).</p>
+        <p><b>Lawcription</b> is a digital platform and brand operated under <b>Healthcription</b>, owned by Mrs. Poulomi Debnath. For the purpose of this Policy, <b>Healthcription</b> (operating as "Lawcription") shall be the <b>"Data Fiduciary"</b> responsible for protecting the privacy of its Users (<b>"Data Principals"</b>).</p>
 
         <p>All services, financial transactions, and legal obligations—including the processing of your Personal Data—are undertaken by <b>Healthcription</b>. By accessing the App, you provide <b>Unambiguous, Informed, and Affirmative Consent</b> to the processing of your data as described herein.</p>
 

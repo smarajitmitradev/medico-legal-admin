@@ -12,7 +12,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Frontend\UserPageController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\AiChatController;
-
+use App\Http\Controllers\Admin\SubscriptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -84,6 +84,14 @@ Route::prefix('admin')->group(function () {
                 ->parameters(['' => 'id']); // 👈 CHANGE HERE
 
         });
+
+        // subscription
+
+        Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+        Route::get('/subscriptions/export', [SubscriptionController::class, 'export'])->name('subscriptions.export');
+        Route::get('/subscriptions/{subscription}', [SubscriptionController::class, 'show'])->name('subscriptions.show');
+        Route::post('/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+        Route::delete('/subscriptions/{subscription}', [SubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
 
 
         // AJAX ROUTES (IMPORTANT)

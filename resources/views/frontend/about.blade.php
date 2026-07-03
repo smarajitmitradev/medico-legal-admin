@@ -39,7 +39,7 @@
         <p><b>Lawcription</b> is a specialized medico-legal knowledge platform designed to bridge the gap between medical practice and legal awareness in India.</p>
 
         <h3 class="font-semibold mt-6 mb-2">Legal Identity & Ownership</h3>
-        <p><b>Lawcription</b> is a digital platform and brand operated under <b>Healthcription</b>, a sole proprietorship owned and managed by Mrs. Poulomi Debnath. All services, financial transactions, and legal obligations associated with the App are undertaken by the parent entity, <b>Healthcription</b>.</p>
+        <p><b>Lawcription</b> is a digital platform and brand operated under <b>Healthcription</b>, owned and managed by Mrs. Poulomi Debnath. All services, financial transactions, and legal obligations associated with the App are undertaken by the parent entity, <b>Healthcription</b>.</p>
 
         <h3 class="font-semibold mt-6 mb-2">Leadership & Expertise</h3>
         <p>The intellectual and medico-legal framework of <b>Lawcription</b> is led by Dr. Sujan Debnath (MBBS, LLB). To ensure statutory depth and practical relevance, our content development process integrates insights and reviews from a consultative network of experienced legal practitioners.</p>
