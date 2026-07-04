@@ -87,12 +87,23 @@ Route::prefix('admin')->group(function () {
 
         // subscription
 
-        Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
-        Route::get('/subscriptions/export', [SubscriptionController::class, 'export'])->name('subscriptions.export');
-        Route::get('/subscriptions/{subscription}', [SubscriptionController::class, 'show'])->name('subscriptions.show');
-        Route::post('/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
-        Route::delete('/subscriptions/{subscription}', [SubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
-
+        Route::get('/subscriptions',                          [SubscriptionController::class, 'index'])->name('subscriptions.index');
+        Route::get('/subscriptions/export',                   [SubscriptionController::class, 'export'])->name('subscriptions.export');
+        Route::get('/subscriptions/{subscription}',           [SubscriptionController::class, 'show'])->name('subscriptions.show');
+        Route::post('/subscriptions/{subscription}/cancel',   [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+        Route::post('/subscriptions/{subscription}/pause',    [SubscriptionController::class, 'pause'])->name('subscriptions.pause');
+        Route::post('/subscriptions/{subscription}/resume',   [SubscriptionController::class, 'resume'])->name('subscriptions.resume');
+        Route::post('/subscriptions/{subscription}/refund',   [SubscriptionController::class, 'refund'])->name('subscriptions.refund');
+        Route::post('/subscriptions/{subscription}/complete', [SubscriptionController::class, 'complete'])->name('subscriptions.complete');
+        Route::delete('/subscriptions/{subscription}',        [SubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
+        Route::post(
+            '/subscriptions/recover',
+            [SubscriptionController::class, 'recover']
+        )->name('subscriptions.recover');
+        Route::post(
+            '/subscriptions/direct-refund',
+            [SubscriptionController::class, 'directRefund']
+        )->name('subscriptions.directRefund');
 
         // AJAX ROUTES (IMPORTANT)
         Route::get('get-submanagement/{id}', [ModuleController::class, 'getSubManagement']);
