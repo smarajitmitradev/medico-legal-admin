@@ -82,9 +82,12 @@ class SubManagementController extends Controller
                 'reading_time_in_munites' => $item->reading_time,
                 // 'thumbnail' => null,
                 // Thumbnail URL
+                // 'thumbnail' => $item->thumbnail
+                //     ? asset('storage/' . $item->thumbnail)
+                //     : asset('img/dummy-thumb-nil.png'),
                 'thumbnail' => $item->thumbnail
                     ? asset('storage/' . $item->thumbnail)
-                    : asset('img/dummy-thumb-nil.png'),
+                    : null,
                 'video_url' => $item->youtube_link,
                 'pdf_url' => $item->pdf_file,
                 'is_premium' => false,

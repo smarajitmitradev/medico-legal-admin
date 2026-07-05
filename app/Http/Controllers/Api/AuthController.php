@@ -20,7 +20,8 @@ class AuthController extends Controller
         ]);
 
         // ✅ Static OTP for test number, random for everyone else
-        $otp = $request->mobile_number === '9880765434' ? 123456 : rand(100000, 999999);
+        $otp = $request->mobile_number === '8768290208' ? 123456 : rand(100000, 999999);
+        // 9880765434
 
         // ✅ Check including soft-deleted users
         $user = User::withTrashed()->where('mobile_number', $request->mobile_number)->first();

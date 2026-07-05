@@ -38,9 +38,12 @@ class ModuleController extends Controller
                     : null,
                 'reading_time_in_munites' => $content->reading_time,
                 // Thumbnail URL
+                // 'thumbnail' => $content->thumbnail
+                // ? asset('storage/' . $content->thumbnail)
+                // : asset('img/dummy-thumb-nil.png'),
                 'thumbnail' => $content->thumbnail
                 ? asset('storage/' . $content->thumbnail)
-                : asset('img/dummy-thumb-nil.png'),
+                : null,
                 'is_premium' => false,
                 'created_at' => $content->created_at,
 
