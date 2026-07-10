@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Management;
 use App\Models\SubManagement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
@@ -90,21 +91,41 @@ class SubManageMentController extends Controller
             'items.*.type' => 'required|in:1,2,3',
         ]);
 
-        // Delete all old submanagements for this management
-        SubManagement::where('management_id', $request->management_id)->delete();
+        // Fetch existing submanagements in the same order they were loaded into the edit form
+        $existing = SubManagement::where('management_id', $request->management_id)
+            ->orderBy('id')
+            ->get();
 
-        // Insert new ones
-        foreach ($request->items as $item) {
+        $keepIds = [];
+        $items = $request->items;
 
-            $slug = $this->generateUniqueSlug($item['name']);
-
-            SubManagement::create([
-                'management_id' => $request->management_id,
-                'name' => $item['name'],
-                'slug' => $slug,
-                'is_video_pdf' => $item['type'],
-            ]);
+        foreach ($items as $index => $item) {
+            if (isset($existing[$index])) {
+                // Matches an existing row by position -> update in place, id unchanged
+                $sub = $existing[$index];
+                $sub->update([
+                    'name' => $item['name'],
+                    'slug' => $this->generateUniqueSlug($item['name']),
+                    'is_video_pdf' => $item['type'],
+                ]);
+                $keepIds[] = $sub->id;
+            } else {
+                // Extra row beyond existing count -> genuinely new (from "+ Add Row")
+                $sub = SubManagement::create([
+                    'management_id' => $request->management_id,
+                    'name' => $item['name'],
+                    'slug' => $this->generateUniqueSlug($item['name']),
+                    'is_video_pdf' => $item['type'],
+                ]);
+                $keepIds[] = $sub->id;
+            }
         }
+
+        // Delete only rows that existed before but are no longer in the submitted list
+        // (i.e. user clicked the red "-" remove button on them)
+        SubManagement::where('management_id', $request->management_id)
+            ->whereNotIn('id', $keepIds)
+            ->delete();
 
         return response()->json([
             'message' => 'Sub Management updated successfully!'
