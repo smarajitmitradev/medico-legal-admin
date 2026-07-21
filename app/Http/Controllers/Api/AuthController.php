@@ -52,7 +52,7 @@ class AuthController extends Controller
         }
 
         // ✅ Skip real OTP service for test number
-        if ($request->mobile_number !== '9880765434') {
+        if ($request->mobile_number !== '8768290208') {
             $fullMobile = $request->country_code . $request->mobile_number;
             $response = $otpService->sendOtp($fullMobile, $otp);
 
