@@ -20,7 +20,7 @@ class AuthController extends Controller
         ]);
 
         // ✅ Static OTP for test number, random for everyone else
-        $otp = $request->mobile_number === '8768290208' ? 123456 : rand(100000, 999999);
+        $otp = $request->mobile_number === '9593282323' ? 123456 : rand(100000, 999999);
         // 9880765434
 
         // ✅ Check including soft-deleted users
@@ -52,7 +52,7 @@ class AuthController extends Controller
         }
 
         // ✅ Skip real OTP service for test number
-        if ($request->mobile_number !== '8768290208') {
+        if ($request->mobile_number !== '9593282323') {
             $fullMobile = $request->country_code . $request->mobile_number;
             $response = $otpService->sendOtp($fullMobile, $otp);
 
