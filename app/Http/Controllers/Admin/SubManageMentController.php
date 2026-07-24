@@ -6,10 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Management;
 use App\Models\SubManagement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
-class SubManagementController extends Controller
+class SubManageMentController extends Controller
 {
     // List all submanagements
     public function index()
@@ -73,44 +74,83 @@ class SubManagementController extends Controller
     {
         $submanagement = SubManagement::findOrFail($id);
         $managements = Management::all();
-        return view('admin.submanagement.edit', compact('submanagement', 'managements'));
+
+        // Get all submanagements of same management
+        $submanagements = SubManagement::where('management_id', $submanagement->management_id)->get();
+
+        return view('admin.submanagement.edit', compact('submanagement', 'managements', 'submanagements'));
     }
 
     // Update submanagement
     public function update(Request $request, $id)
     {
-        $submanagement = SubManagement::findOrFail($id);
-
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'management_id' => 'required|exists:managements,id',
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:1,2,3',
-            'link' => 'nullable|string|max:1000',
+            'items' => 'required|array|min:1',
+            'items.*.name' => 'required|string|max:255',
+            'items.*.type' => 'required|in:1,2,3',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+        // Fetch existing submanagements in the same order they were loaded into the edit form
+        $existing = SubManagement::where('management_id', $request->management_id)
+            ->orderBy('id')
+            ->get();
+
+        $keepIds = [];
+        $items = $request->items;
+
+        foreach ($items as $index => $item) {
+            if (isset($existing[$index])) {
+                // Matches an existing row by position -> update in place, id unchanged
+                $sub = $existing[$index];
+                $sub->update([
+                    'name' => $item['name'],
+                    'slug' => $this->generateUniqueSlug($item['name']),
+                    'is_video_pdf' => $item['type'],
+                ]);
+                $keepIds[] = $sub->id;
+            } else {
+                // Extra row beyond existing count -> genuinely new (from "+ Add Row")
+                $sub = SubManagement::create([
+                    'management_id' => $request->management_id,
+                    'name' => $item['name'],
+                    'slug' => $this->generateUniqueSlug($item['name']),
+                    'is_video_pdf' => $item['type'],
+                ]);
+                $keepIds[] = $sub->id;
+            }
         }
 
-        $submanagement->update([
-            'management_id' => $request->management_id,
-            'name' => $request->name,
-            'slug' => $this->generateUniqueSlug($request->name),
-            'is_video_pdf' => $request->type,
-            'link' => $request->link ?? null,
-        ]);
+        // Delete only rows that existed before but are no longer in the submitted list
+        // (i.e. user clicked the red "-" remove button on them)
+        SubManagement::where('management_id', $request->management_id)
+            ->whereNotIn('id', $keepIds)
+            ->delete();
 
-        return redirect()->route('submanagement.index')
-            ->with('success', 'Sub Management updated successfully!');
+        return response()->json([
+            'message' => 'Sub Management updated successfully!'
+        ]);
     }
 
     // Delete submanagement
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        // If management_id is passed → delete all under management
+        if ($request->management_id) {
+
+            SubManagement::where('management_id', $request->management_id)->delete();
+
+            return response()->json([
+                'message' => 'All SubManagements deleted successfully!'
+            ]);
+        }
+
+        // Otherwise delete single (default behavior)
         $submanagement = SubManagement::findOrFail($id);
         $submanagement->delete();
 
-        return redirect()->route('submanagement.index')
-            ->with('success', 'Sub Management deleted successfully!');
+        return response()->json([
+            'message' => 'SubManagement deleted successfully!'
+        ]);
     }
 }

@@ -1,58 +1,143 @@
-<div id="sidebar" class="text-white p-3">
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
 
-    <h4 class="text-center mb-4 fw-bold">Admin</h4>
+    <!-- Logo -->
+    <a href="{{ route('admin.dashboard') }}" class="brand-link text-center">
+        <img src="{{asset('img/AdminLTELogo.png')}}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+        <span class="brand-text fw-bold">
+            Admin Panel
+        </span>
 
-    <ul class="nav flex-column">
+    </a>
 
-        <!-- Dashboard -->
-        <li class="nav-item mb-2">
-            <a href="{{ route('admin.dashboard') }}" class="nav-link sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <i class="bi bi-speedometer2"></i>
-                <span>Dashboard</span>
-            </a>
-        </li>
+    <!-- Sidebar -->
+    <div class="sidebar">
 
-        <!-- Users -->
-        <li class="nav-item mb-2">
-            <a href="#" class="nav-link sidebar-link {{ request()->routeIs('admin.users') ? 'active' : '' }}">
-                <i class="bi bi-people"></i>
-                <span>Users</span>
-            </a>
-        </li>
+        <!-- Sidebar user panel (optional) -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="image">
+                <img src="{{asset('img/user2-160x160.jpg')}}" class="img-circle elevation-2" alt="User Image">
+            </div>
+            <div class="info">
+                <a href="#" class="d-block">Alexander Pierce</a>
+            </div>
+        </div>
 
-        {{-- MANAGEMENT --}}
-        <li class="nav-item mb-2">
-            <a href="{{ route('management.index') }}" class="nav-link sidebar-link {{ request()->routeIs('management.*') ? 'active' : '' }}">
-                <i class="bi bi-diagram-3"></i>
-                <span>Management</span>
-            </a>
-        </li>
+        <!-- SidebarSearch Form -->
+        <div class="form-inline">
+            <div class="input-group" data-widget="sidebar-search">
+                <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+                <div class="input-group-append">
+                    <button class="btn btn-sidebar">
+                        <i class="fas fa-search fa-fw"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Menu -->
+        <nav class="mt-3">
 
-        {{-- SUBMANAGEMENT --}}
-        <li class="nav-item mb-2">
-            <a href="{{ route('submanagement.index') }}" class="nav-link sidebar-link {{ request()->routeIs('submanagement.*') ? 'active' : '' }}">
-                <i class="bi bi-journal-text"></i>
-                <span>Sub Management</span>
-            </a>
-        </li>
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
 
-        {{-- MODULES --}}
-        <li class="nav-item mb-2">
-            {{-- Use a default route that does not require sub_slug --}}
-            <a href="{{ url('admin/module') }}" class="nav-link sidebar-link {{ request()->is('admin/module*') ? 'active' : '' }}">
-                <i class="bi bi-grid"></i>
-                <span>Modules</span>
-            </a>
-        </li>
+                <li class="nav-item">
 
-        <!-- Settings -->
-        <li class="nav-item">
-            <a href="#" class="nav-link sidebar-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
-                <i class="bi bi-gear"></i>
-                <span>Settings</span>
-            </a>
-        </li>
+                    <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
 
-    </ul>
+                        <i class="nav-icon fas fa-tachometer-alt"></i>
 
-</div>
+                        <p>Dashboard</p>
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
+
+                        <i class="nav-icon fas fa-users"></i>
+
+                        <p>Users</p>
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a href="{{ route('management.index') }}" class="nav-link {{ request()->routeIs('management.*') ? 'active' : '' }}">
+
+                        <i class="nav-icon fas fa-sitemap"></i>
+
+                        <p>Management</p>
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a href="{{ route('submanagement.index') }}" class="nav-link {{ request()->routeIs('submanagement.*') ? 'active' : '' }}">
+
+                        <i class="nav-icon fas fa-layer-group"></i>
+
+                        <p>Sub Management</p>
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a href="{{ url('admin/module') }}" class="nav-link {{ request()->is('admin/module*') ? 'active' : '' }}">
+
+                        <i class="nav-icon fas fa-cubes"></i>
+
+                        <p>Modules</p>
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a href="{{ route('notification.index') }}" class="nav-link {{ request()->routeIs('notification.*') ? 'active' : '' }}">
+
+                        <i class="nav-icon fas fa-bell"></i>
+
+                        <p>Notification</p>
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a href="{{ route('subscriptions.index') }}" class="nav-link {{ request()->routeIs('subscriptions.*') ? 'active' : '' }}">
+
+                        <i class="nav-icon fas fa-receipt"></i>
+
+                        <p>Subscriptions</p>
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+
+                        <i class="nav-icon fas fa-cog"></i>
+
+                        <p>Settings</p>
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </nav>
+
+    </div>
+
+</aside>

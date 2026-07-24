@@ -4,9 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ManagementController;
-use App\Http\Controllers\Admin\SubManagementController;
+use App\Http\Controllers\Admin\SubManageMentController;
 use App\Http\Controllers\Frontend\Auth\UserAuthController;
 use App\Http\Controllers\Admin\ModuleController;
+use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Frontend\UserPageController;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\AiChatController;
+use App\Http\Controllers\Admin\SubscriptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,13 +36,37 @@ Route::prefix('admin')->group(function () {
     Route::post('/login', [LoginController::class, 'login'])->name('admin.login.submit');
     Route::get('/logout', [LoginController::class, 'logout'])->name('admin.logout');
 
+    // =======================
+    // OTP ROUTES (NEW)
+    // =======================
+    Route::get('/otp', [LoginController::class, 'showOtpForm'])->name('admin.otp.form');
+    Route::post('/otp', [LoginController::class, 'verifyOtp'])->name('admin.otp.verify');
+    Route::post('/otp/resend', [LoginController::class, 'resendOtp'])->name('admin.otp.resend');
+
     // Protected Routes
     Route::middleware(['admin.auth'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
         Route::get('/ckeditor', [DashboardController::class, 'ckeditor'])->name('ckeditor');
         Route::get('/markdown', [DashboardController::class, 'markdown'])->name('markdown');
         Route::resource('management', ManagementController::class);
-        Route::resource('submanagement', SubManagementController::class);
+        Route::resource('users', UserController::class);
+        // Route::resource('settings', SettingController::class);
+        Route::get('/settings', [SettingController::class, 'index'])
+            ->name('settings.index');
+
+        Route::post('/settings/update', [SettingController::class, 'update'])
+            ->name('settings.update');
+        Route::resource('submanagement', SubManageMentController::class);
+        Route::resource('notification', NotificationController::class);
+        // web.php
+
+        Route::post('profile-update', [DashboardController::class, 'updateProfile'])
+            ->name('admin.profile.update');
+        // ROUTE
+        Route::post('avatar-update', [DashboardController::class, 'avatarUpdate'])
+            ->name('admin.avatar.update');
+        Route::post('/admin/ai-chat/send', [AiChatController::class, 'send'])
+            ->name('admin.ai.chat.send');
 
 
         Route::prefix('module/{sub_slug}')->group(function () {
@@ -52,9 +82,28 @@ Route::prefix('admin')->group(function () {
                     'destroy' => 'module.destroy',
                 ])
                 ->parameters(['' => 'id']); // 👈 CHANGE HERE
-        
+
         });
 
+        // subscription
+
+        Route::get('/subscriptions',                          [SubscriptionController::class, 'index'])->name('subscriptions.index');
+        Route::get('/subscriptions/export',                   [SubscriptionController::class, 'export'])->name('subscriptions.export');
+        Route::get('/subscriptions/{subscription}',           [SubscriptionController::class, 'show'])->name('subscriptions.show');
+        Route::post('/subscriptions/{subscription}/cancel',   [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+        Route::post('/subscriptions/{subscription}/pause',    [SubscriptionController::class, 'pause'])->name('subscriptions.pause');
+        Route::post('/subscriptions/{subscription}/resume',   [SubscriptionController::class, 'resume'])->name('subscriptions.resume');
+        Route::post('/subscriptions/{subscription}/refund',   [SubscriptionController::class, 'refund'])->name('subscriptions.refund');
+        Route::post('/subscriptions/{subscription}/complete', [SubscriptionController::class, 'complete'])->name('subscriptions.complete');
+        Route::delete('/subscriptions/{subscription}',        [SubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
+        Route::post(
+            '/subscriptions/recover',
+            [SubscriptionController::class, 'recover']
+        )->name('subscriptions.recover');
+        Route::post(
+            '/subscriptions/direct-refund',
+            [SubscriptionController::class, 'directRefund']
+        )->name('subscriptions.directRefund');
 
         // AJAX ROUTES (IMPORTANT)
         Route::get('get-submanagement/{id}', [ModuleController::class, 'getSubManagement']);
@@ -76,6 +125,10 @@ Route::prefix('user')->group(function () {
     Route::post('/register', [UserAuthController::class, 'register'])->name('user.register.submit');
 
     Route::get('/logout', [UserAuthController::class, 'logout'])->name('user.logout');
+    // ✅ About Page Route (NEW)
+    Route::get('/about', [UserPageController::class, 'about'])->name('user.about');
+    Route::get('/terms', [UserPageController::class, 'terms'])->name('user.terms');
+    Route::get('/privacy', [UserPageController::class, 'privacy'])->name('user.privacy');
 
     Route::middleware(['user.auth'])->group(function () {
         Route::get('/dashboard', function () {

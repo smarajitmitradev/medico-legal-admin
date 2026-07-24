@@ -4,11 +4,15 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
-use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\QueryException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use Illuminate\Auth\AuthenticationException;
 
 class Handler extends ExceptionHandler
 {
@@ -44,6 +48,8 @@ class Handler extends ExceptionHandler
     /**
      * Render exceptions to JSON for API routes
      */
+
+
     public function render($request, Throwable $exception)
     {
         // ✅ Token invalid
@@ -51,9 +57,7 @@ class Handler extends ExceptionHandler
             return response()->json([
                 'success' => false,
                 'message' => 'Token is invalid',
-                'error' => [
-                    'code' => 'TOKEN_INVALID'
-                ]
+                'error' => ['code' => 'TOKEN_INVALID']
             ], 401);
         }
 
@@ -62,35 +66,66 @@ class Handler extends ExceptionHandler
             return response()->json([
                 'success' => false,
                 'message' => 'Token expired',
-                'error' => [
-                    'code' => 'TOKEN_EXPIRED'
-                ]
+                'error' => ['code' => 'TOKEN_EXPIRED']
             ], 401);
         }
 
-        // ✅ Token missing / general JWT error
+        // ✅ Token missing
         if ($exception instanceof JWTException) {
             return response()->json([
                 'success' => false,
                 'message' => 'Token missing',
-                'error' => [
-                    'code' => 'TOKEN_MISSING'
-                ]
+                'error' => ['code' => 'TOKEN_MISSING']
             ], 401);
         }
 
-        // ✅ UnauthorizedHttpException fallback
+        // ✅ Unauthorized
         if ($exception instanceof UnauthorizedHttpException) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized access',
-                'error' => [
-                    'code' => 'UNAUTHORIZED'
-                ]
+                'error' => ['code' => 'UNAUTHORIZED']
             ], 401);
         }
 
-        return parent::render($request, $exception);
+        // ✅ Validation error
+        if ($exception instanceof ValidationException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $exception->errors()
+            ], 422);
+        }
+
+        // ✅ 404 Not Found
+        if ($exception instanceof NotFoundHttpException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'API endpoint not found'
+            ], 404);
+        }
+
+        // ✅ Method Not Allowed (POST instead of GET etc.)
+        if ($exception instanceof MethodNotAllowedHttpException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'HTTP method not allowed'
+            ], 405);
+        }
+
+        // ✅ Database error (duplicate entry etc.)
+        if ($exception instanceof QueryException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Database error (possible duplicate entry)'
+            ], 400);
+        }
+
+        // ✅ Fallback (any other error)
+        return response()->json([
+            'success' => false,
+            'message' => $exception->getMessage() ?: 'Server Error'
+        ], 500);
     }
 
     /**

@@ -3,6 +3,13 @@
 <tr>
     <td>{{ $module->title }}</td>
     <td>
+        @if($module->thumbnail)
+        <img src="{{ asset('storage/' . $module->thumbnail) }}" alt="Thumbnail" style="width:120px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ddd;">
+        @else
+        <span class="text-muted">No Image</span>
+        @endif
+    </td>
+    <td>
         <div style="
         max-width:300px;
         max-height:120px;
@@ -17,13 +24,20 @@
             {!! $module->description_html !!}
         </div>
     </td>
+    <td>
+        <span class="badge bg-light text-dark px-3 py-2">
+            <i class="fa-regular fa-clock me-1"></i>
+            {{ $module->reading_time == 1 ? '1 min read' : $module->reading_time.' mins read' }}
+        </span>
+    </td>
 
     <td>
         @php
         $video = trim($module->youtube_link ?? '');
         $youtubeId = null;
-        $isShort = false; // ✅ ALWAYS define first
+        $isShort = false;
 
+        if (!empty($video)) {
         // youtube shorts
         if (preg_match('/youtube\.com\/shorts\/([^\&\?\/]+)/', $video, $match)) {
         $youtubeId = $match[1];
@@ -41,13 +55,18 @@
         elseif (preg_match('/youtu\.be\/([^\&\?\/]+)/', $video, $match)) {
         $youtubeId = $match[1];
         }
+        }
         @endphp
 
-        @if($youtubeId)
+        @if(empty($video))
+        <span class="text-muted">No Video</span>
+
+        @elseif($youtubeId)
         <div style="width:200px; height:120px; overflow:hidden; border-radius:8px;">
             <iframe src="https://www.youtube.com/embed/{{ $youtubeId }}" style="width:100%; height:100%; object-fit:cover;" frameborder="0" allowfullscreen>
             </iframe>
         </div>
+
         @else
         <a href="{{ $video }}" target="_blank">Watch Video</a>
         @endif
@@ -71,11 +90,11 @@
     </td>
 
     <td>
-        <a href="{{ route('module.edit', [$sub->slug, $module->id]) }}" class="btn btn-sm btn-warning">
+        <a href="{{ route('module.edit', [$module->submanagement_id, $module->id]) }}" class="btn btn-sm btn-warning">
             <i class="fas fa-edit"></i>
         </a>
 
-        <form action="{{ route('module.destroy', [$sub->slug, $module->id]) }}" method="POST" style="display:inline;">
+        <form action="{{ route('module.destroy', [$module->submanagement_id, $module->id]) }}" method="POST" style="display:inline;">
             @csrf
             @method('DELETE')
             <button onclick="return confirm('Delete?')" class="btn btn-sm btn-danger">

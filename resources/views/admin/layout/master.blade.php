@@ -3,27 +3,33 @@
 
 @include('admin.layout.header')
 
-<body>
+<body class="hold-transition sidebar-mini layout-fixed">
 
-<div class="d-flex">
+<div class="wrapper">
+
+    <!-- Navbar -->
+    @include('admin.layout.navbar')
 
     <!-- Sidebar -->
     @include('admin.layout.sidebar')
 
-    <!-- Main Content -->
-    <div id="content">
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
 
-        <!-- Navbar -->
-        @include('admin.layout.navbar')
+        <section class="content pt-3">
 
-        <div class="p-4">
-            @yield('content')
-        </div>
+            <div class="container-fluid">
 
-        <!-- Footer -->
-        @include('admin.layout.footer')
+                @yield('content')
+
+            </div>
+
+        </section>
 
     </div>
+
+    <!-- Footer -->
+    @include('admin.layout.footer')
 
 </div>
 

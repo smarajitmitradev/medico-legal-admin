@@ -3,7 +3,7 @@
 @section('content')
 
 <!-- Font Awesome -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -13,178 +13,181 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <style>
-body { background: #f5f7fb; }
-
-.card { border-radius: 12px; border: none; }
-
-.icon-dropdown { position: relative; }
-
-.icon-selected {
-    border: 1px solid #ddd;
-    padding: 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    background: #f9fafb;
-    font-size: 22px;
-    text-align: center;
+.table td, .table th {
+    vertical-align: middle;
 }
 
-.icon-list {
-    display: none;
-    position: absolute;
-    width: 100%;
-    max-height: 260px;
-    overflow-y: auto;
-    background: #fff;
-    border-radius: 10px;
-    margin-top: 8px;
-    padding: 10px;
-    z-index: 999;
+/* Small square buttons */
+.btn-sm {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+.btn-danger {
+    border-radius: 8px !important;
+}
+
+.btn i {
+    font-size: 14px;
+}
+
+/* Bottom buttons */
+.action-btns {
+    display: flex;
     gap: 10px;
-
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-}
-
-.icon-item {
-    padding: 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    background: #f8f9fa;
-    text-align: center;
-}
-
-.icon-item:hover,
-.icon-item.active {
-    background: #0d6efd;
-    color: #fff;
+    margin-top: 15px;
 }
 </style>
 
 <div class="container mt-4">
-    <div class="card shadow p-4">
-        <h4>Edit Management</h4>
+    <div class="card p-4 shadow">
+        <h4>Edit Sub Management</h4>
 
-        <form id="updateForm" enctype="multipart/form-data">
+        <form id="subManagementForm">
             @csrf
-            <input type="hidden" id="id" value="{{ $management->id }}">
+            @method('PUT')
 
-            <!-- Name -->
+            <!-- Management Dropdown -->
             <div class="mb-3">
-                <label>Name</label>
-                <input type="text" name="name" value="{{ $management->name }}" class="form-control">
+                <label>Select Management</label>
+                <select name="management_id" class="form-control">
+                    @foreach($managements as $management)
+                        <option value="{{ $management->id }}"
+                            {{ $management->id == $submanagement->management_id ? 'selected' : '' }}>
+                            {{ $management->name }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
-            <!-- Icon Picker -->
-            <div class="mb-3">
-                <label>Select Icon</label>
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle" id="dynamicTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
 
-                <div class="icon-dropdown">
-                    <div class="icon-selected" id="selectedIconBox">
-                        <i class="{{ $management->icon }}"></i>
-                    </div>
+                    <tbody>
 
-                    <div class="icon-list" id="iconList">
+                        @php $rowIndex = 0; @endphp
 
-                        @php
-                        $icons = [
-                        'fa-user','fa-users','fa-gear','fa-house','fa-envelope','fa-phone','fa-star','fa-heart',
-                        'fa-book','fa-file','fa-file-lines','fa-scale-balanced',
-                        'fa-stethoscope','fa-hospital','fa-user-doctor','fa-briefcase-medical',
-                        'fa-gavel','fa-landmark','fa-chart-line','fa-chart-bar','fa-bell','fa-comment',
-                        'fa-lock','fa-key','fa-upload','fa-download','fa-image','fa-video',
-                        'fa-calendar','fa-clock','fa-location-dot','fa-map',
-                        'fa-cart-shopping','fa-credit-card','fa-pen','fa-trash','fa-check','fa-xmark'
-                        ];
-                        @endphp
+                        @foreach($submanagements as $sub)
+                        <tr>
+                            <td>
+                                <input type="text"
+                                       name="items[{{ $rowIndex }}][name]"
+                                       class="form-control"
+                                       value="{{ $sub->name }}">
+                            </td>
 
-                        @foreach($icons as $icon)
-                            <div class="icon-item {{ $management->icon == 'fa-solid '.$icon ? 'active' : '' }}"
-                                 data-icon="fa-solid {{ $icon }}">
-                                <i class="fa-solid {{ $icon }}"></i>
-                            </div>
+                            <td>
+                                <select name="items[{{ $rowIndex }}][type]" class="form-control">
+                                    <option value="1" {{ $sub->is_video_pdf == 1 ? 'selected' : '' }}>Video</option>
+                                    <option value="2" {{ $sub->is_video_pdf == 2 ? 'selected' : '' }}>PDF</option>
+                                    <option value="3" {{ $sub->is_video_pdf == 3 ? 'selected' : '' }}>Both</option>
+                                </select>
+                            </td>
+
+                            <td class="text-center">
+                                <button type="button" class="btn btn-danger btn-sm removeRow">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        @php $rowIndex++; @endphp
                         @endforeach
 
-                    </div>
-                </div>
-
-                <input type="hidden" name="icon" id="selectedIcon" value="{{ $management->icon }}">
+                    </tbody>
+                </table>
             </div>
 
-            <!-- Image -->
-            <div class="mb-3">
-                <label>Image</label>
-                <input type="file" name="image" class="form-control">
-                <br>
-                <img src="{{ asset('uploads/'.$management->image) }}" width="80" style="border-radius:6px;">
+            <!-- Bottom Buttons -->
+            <div class="action-btns">
+                <button type="button" class="btn btn-success addRow">
+                    <i class="fa-solid fa-plus"></i> Add Row
+                </button>
+
+                <button type="submit" class="btn btn-primary">
+                    Update
+                </button>
             </div>
 
-            <button type="submit" class="btn btn-primary">Update</button>
         </form>
     </div>
 </div>
 
 <script>
-let selectedBox = $('#selectedIconBox');
-let iconList = $('#iconList');
-let hiddenInput = $('#selectedIcon');
+let rowIndex = {{ count($submanagements) }};
 
-// Toggle dropdown
-selectedBox.click(function () {
-    iconList.toggle();
+// ADD ROW
+$(document).on('click', '.addRow', function () {
+
+    let row = `
+        <tr>
+            <td>
+                <input type="text" name="items[${rowIndex}][name]" class="form-control">
+            </td>
+            <td>
+                <select name="items[${rowIndex}][type]" class="form-control">
+                    <option value="1">Video</option>
+                    <option value="2">PDF</option>
+                    <option value="3">Both</option>
+                </select>
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-danger btn-sm removeRow">
+                    <i class="fa-solid fa-minus"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+
+    $('#dynamicTable tbody').append(row);
+    rowIndex++;
 });
 
-// Select icon
-$('.icon-item').click(function () {
-    let iconClass = $(this).data('icon');
+// REMOVE ROW (prevent deleting last row)
+$(document).on('click', '.removeRow', function () {
 
-    selectedBox.html(`<i class="${iconClass}"></i>`);
-    hiddenInput.val(iconClass);
-
-    $('.icon-item').removeClass('active');
-    $(this).addClass('active');
-
-    iconList.hide();
-});
-
-// Close dropdown
-$(document).click(function(e) {
-    if (!$(e.target).closest('.icon-dropdown').length) {
-        iconList.hide();
+    if ($('#dynamicTable tbody tr').length === 1) {
+        toastr.error('At least one row is required!');
+        return;
     }
+
+    $(this).closest('tr').remove();
 });
 
-// AJAX UPDATE
-$('#updateForm').submit(function(e) {
+// SUBMIT FORM
+$('#subManagementForm').submit(function(e) {
     e.preventDefault();
 
-    let formData = new FormData(this);
-    formData.append('_method', 'PUT');
-
     $.ajax({
-        url: "{{ route('management.update', $management->id) }}",
+        url: "{{ route('submanagement.update', $submanagement->id) }}",
         type: "POST",
-        data: formData,
-        contentType: false,
-        processData: false,
-
+        data: $(this).serialize(),
         success: function(res) {
             toastr.success(res.message);
+
+            setTimeout(() => {
+                window.location.href = "{{ route('submanagement.index') }}";
+            }, 1000);
         },
-
         error: function(xhr) {
+            console.log(xhr)
+            let errors = xhr.responseJSON.errors;
 
-            if (xhr.status === 422) {
-                let errors = xhr.responseJSON.errors;
-
+            if (errors) {
                 Object.values(errors).forEach(err => {
                     toastr.error(err[0]);
                 });
-
-            } else if (xhr.status === 404) {
-                toastr.error("Route not found!");
             } else {
                 toastr.error("Something went wrong!");
             }
