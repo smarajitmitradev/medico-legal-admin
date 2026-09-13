@@ -116,8 +116,8 @@ class FileToHtmlController extends Controller
 
         // 2. Upload the actual PDF bytes to the upload URL CloudConvert gave us
         $uploadResponse = Http::timeout(60)
-            ->attach('file', file_get_contents($pdfPath), basename($pdfPath))
-            ->post($uploadUrl, $uploadParams);
+        ->attach('file', file_get_contents($pdfPath), 'source.pdf')
+        ->post($uploadUrl, $uploadParams);
 
         if ($uploadResponse->failed()) {
             throw new \RuntimeException('CloudConvert file upload failed: ' . $uploadResponse->body());
