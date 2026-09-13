@@ -302,29 +302,8 @@ class FileToHtmlController extends Controller
             $element = $elements[$i];
 
             if ($element instanceof ListItem || $element instanceof ListItemRun) {
-                // Check if this "list item" is actually a heading in disguise
-                // (some conversion engines, e.g. PDF->DOCX via CloudConvert,
-                // represent section headings as level-0 numbered list items
-                // rather than real Heading paragraph styles).
-                $headingLevel = $this->detectHeadingLevel($element, true);
-
-                if ($headingLevel !== null) {
-                    $text = $this->extractRunText($element);
-                    if (trim(strip_tags($text)) !== '') {
-                        $html .= "<h{$headingLevel}>{$text}</h{$headingLevel}>";
-                    }
-                    $i++;
-                    continue;
-                }
-
-                // Collect this run of consecutive real list items (same list
-                // block) into one <ul>/<ol>, tracking depth for nested lists.
                 $listItems = [];
                 while ($i < $count && ($elements[$i] instanceof ListItem || $elements[$i] instanceof ListItemRun)) {
-                    // Stop grouping if we hit another heading-disguised item
-                    if ($this->detectHeadingLevel($elements[$i], true) !== null) {
-                        break;
-                    }
                     $listItems[] = $elements[$i];
                     $i++;
                 }
@@ -338,18 +317,6 @@ class FileToHtmlController extends Controller
 
         return $html;
     }
-
-/**
- * Returns a heading level (1-6) if this run should be rendered as a
- * heading, or null if it's a normal paragraph/list item.
- *
- * $isListItem: when true, we're being called on a ListItem/ListItemRun
- * that the list-grouping logic is deciding whether to pull out as a
- * heading instead of a bullet — in that case we require BOTH the
- * "looks like a heading" heuristic AND a numbered-section pattern
- * ("1. Introduction", "2.1 Purpose") since plain bullets can also be
- * short and bold, and we don't want to misclassify real list content.
- */
 
     /**
      * @param array<ListItem|ListItemRun> $listItems
@@ -413,9 +380,6 @@ class FileToHtmlController extends Controller
         if ($element instanceof Title) {
             $depth = min(max((int) $element->getDepth(), 1), 6);
             $text = htmlspecialchars($this->flattenText($element));
-            if (trim($text) === '') {
-                return '';
-            }
             return "<h{$depth}>{$text}</h{$depth}>";
         }
 
@@ -428,25 +392,14 @@ class FileToHtmlController extends Controller
 
             if ($headingLevel !== null) {
                 $text = $this->extractRunText($element);
-                if (trim(strip_tags($text)) === '') {
-                    return '';
-                }
                 return "<h{$headingLevel}>{$text}</h{$headingLevel}>";
             }
 
-            $text = $this->extractRunText($element);
-            if (trim(strip_tags($text)) === '') {
-                return '';
-            }
-            return '<p>' . $text . '</p>';
+            return '<p>' . $this->extractRunText($element) . '</p>';
         }
 
         if ($element instanceof Text) {
-            $text = htmlspecialchars($element->getText());
-            if (trim($text) === '') {
-                return '';
-            }
-            return '<p>' . $text . '</p>';
+            return '<p>' . htmlspecialchars($element->getText()) . '</p>';
         }
 
         if ($element instanceof AbstractContainer) {
@@ -456,7 +409,7 @@ class FileToHtmlController extends Controller
         return '';
     }
 
-    private function detectHeadingLevel($run, bool $isListItem = false): ?int
+    private function detectHeadingLevel(TextRun $run): ?int
     {
         $styleName = null;
         $pStyle = method_exists($run, 'getParagraphStyle') ? $run->getParagraphStyle() : null;
@@ -480,9 +433,7 @@ class FileToHtmlController extends Controller
         $maxFontSize = 0;
         $hasContent = false;
 
-        $children = method_exists($run, 'getElements') ? $run->getElements() : [];
-
-        foreach ($children as $child) {
+        foreach ($run->getElements() as $child) {
             if (!($child instanceof Text)) {
                 continue;
             }
@@ -502,22 +453,13 @@ class FileToHtmlController extends Controller
             }
         }
 
-        $hasNumberedPattern = preg_match('/^\d+(\.\d+)*\.?\s+\S/', $text);
-
         $looksLikeHeading = $hasContent
             && $allBold
             && mb_strlen($text) <= 100
             && !preg_match('/[.!?,;:]$/', $text);
 
-        if ($isListItem) {
-            // Stricter: a "list item" only counts as a heading if it ALSO
-            // matches the numbered-section pattern — avoids misclassifying
-            // genuinely bold, short bullet points as headings.
-            return ($looksLikeHeading && $hasNumberedPattern) ? 2 : null;
-        }
-
         if ($looksLikeHeading) {
-            if ($hasNumberedPattern) {
+            if (preg_match('/^\d+(\.\d+)*\.?\s+/', $text)) {
                 return 2;
             }
             if ($maxFontSize >= 16) {
@@ -557,16 +499,7 @@ class FileToHtmlController extends Controller
 
         foreach ($run->getElements() as $child) {
             if ($child instanceof Text) {
-                $rawText = $child->getText();
-
-                // Skip completely empty runs (formatting artifacts from the
-                // conversion) — these are what caused stray <strong></strong>
-                // and <h1></h1> with no content.
-                if ($rawText === '') {
-                    continue;
-                }
-
-                $text = htmlspecialchars($rawText);
+                $text = htmlspecialchars($child->getText());
                 $font = method_exists($child, 'getFontStyle') ? $child->getFontStyle() : null;
 
                 if (is_object($font)) {
@@ -582,7 +515,7 @@ class FileToHtmlController extends Controller
                 }
 
                 $html .= $text;
-            } elseif (method_exists($child, 'getText') && $child->getText() !== '') {
+            } elseif (method_exists($child, 'getText')) {
                 $html .= htmlspecialchars((string) $child->getText());
             }
         }
