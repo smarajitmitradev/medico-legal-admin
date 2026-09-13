@@ -14,6 +14,7 @@ use PhpOffice\PhpWord\Element\Title;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Style\ListItem as ListItemStyle;
 use Symfony\Component\Process\Process;
+use Illuminate\Support\Facades\Http;
 
 class FileToHtmlController extends Controller
 {
@@ -74,24 +75,94 @@ class FileToHtmlController extends Controller
      * exact same PhpWord walker used for native .docx uploads.
      */
     private function pdfToHtml(string $pdfPath): string
-    {
-        $workDir = $this->makeTempDir('pdf2docx_');
-        $safeInput = $workDir . DIRECTORY_SEPARATOR . 'source.pdf';
-        copy($pdfPath, $safeInput);
+{
+    $apiKey = env('CLOUDCONVERT_API_KEY');
+    if (!$apiKey) {
+        throw new \RuntimeException('CLOUDCONVERT_API_KEY is not set in .env');
+    }
 
-        try {
-            $this->runSoffice($workDir, $safeInput, 'docx:MS Word 2007 XML');
+    $workDir = $this->makeTempDir('pdf2docx_');
 
-            $docxFiles = glob($workDir . DIRECTORY_SEPARATOR . '*.docx');
-            if (empty($docxFiles)) {
-                throw new \RuntimeException('LibreOffice produced no DOCX output from the PDF.');
+    try {
+        // 1. Create a job: import (upload) -> convert -> export (url)
+        $jobResponse = Http::withToken($apiKey)
+            ->timeout(30)
+            ->post('https://api.cloudconvert.com/v2/jobs', [
+                'tasks' => [
+                    'import-file' => [
+                        'operation' => 'import/upload',
+                    ],
+                    'convert-file' => [
+                        'operation' => 'convert',
+                        'input' => 'import-file',
+                        'input_format' => 'pdf',
+                        'output_format' => 'docx',
+                    ],
+                    'export-file' => [
+                        'operation' => 'export/url',
+                        'input' => 'convert-file',
+                    ],
+                ],
+            ]);
+
+        if ($jobResponse->failed()) {
+            throw new \RuntimeException('CloudConvert job creation failed: ' . $jobResponse->body());
+        }
+
+        $job = $jobResponse->json('data');
+        $importTask = collect($job['tasks'])->firstWhere('name', 'import-file');
+        $uploadUrl = $importTask['result']['form']['url'];
+        $uploadParams = $importTask['result']['form']['parameters'];
+
+        // 2. Upload the actual PDF bytes to the upload URL CloudConvert gave us
+        $uploadResponse = Http::timeout(60)
+            ->attach('file', file_get_contents($pdfPath), basename($pdfPath))
+            ->post($uploadUrl, $uploadParams);
+
+        if ($uploadResponse->failed()) {
+            throw new \RuntimeException('CloudConvert file upload failed: ' . $uploadResponse->body());
+        }
+
+        // 3. Poll job status until finished (or failed/timeout)
+        $jobId = $job['id'];
+        $exportUrl = null;
+        $maxAttempts = 30; // ~30 * 2s = 60s max wait
+
+        for ($i = 0; $i < $maxAttempts; $i++) {
+            sleep(2);
+
+            $statusResponse = Http::withToken($apiKey)
+                ->timeout(30)
+                ->get("https://api.cloudconvert.com/v2/jobs/{$jobId}");
+
+            $statusJob = $statusResponse->json('data');
+
+            if ($statusJob['status'] === 'error') {
+                throw new \RuntimeException('CloudConvert job failed: ' . json_encode($statusJob));
             }
 
-            return $this->docxToHtml($docxFiles[0]);
-        } finally {
-            $this->cleanupDir($workDir);
+            if ($statusJob['status'] === 'finished') {
+                $exportTask = collect($statusJob['tasks'])->firstWhere('name', 'export-file');
+                $exportUrl = $exportTask['result']['files'][0]['url'] ?? null;
+                break;
+            }
         }
+
+        if (!$exportUrl) {
+            throw new \RuntimeException('CloudConvert conversion timed out.');
+        }
+
+        // 4. Download the converted DOCX
+        $docxPath = $workDir . DIRECTORY_SEPARATOR . 'converted.docx';
+        $fileResponse = Http::timeout(60)->get($exportUrl);
+        file_put_contents($docxPath, $fileResponse->body());
+
+        // 5. Reuse the exact same walker used for native .docx uploads
+        return $this->docxToHtml($docxPath);
+    } finally {
+        $this->cleanupDir($workDir);
     }
+}
 
     /**
      * Runs `soffice --headless --convert-to <targetFormat>` with an isolated
