@@ -12,7 +12,8 @@ class GroqAiService
     | MODEL
     |--------------------------------------------------------------------------
     */
-    private $model = 'llama-3.3-70b-versatile';
+    // private $model = 'llama-3.3-70b-versatile';
+    private $model = 'openai/gpt-oss-20b';
 
 
 
@@ -33,7 +34,7 @@ class GroqAiService
     | CHAT FUNCTION
     |--------------------------------------------------------------------------
     */
-    public function chat($message)
+    public function chat($message, $systemPrompt = 'You are a helpful AI assistant for admin dashboard.', $maxTokens = 4000)
     {
         $apiKey = $this->getApiKey();
 
@@ -44,13 +45,13 @@ class GroqAiService
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $apiKey,
             'Content-Type'  => 'application/json',
-        ])->post('https://api.groq.com/openai/v1/chat/completions', [
+        ])->timeout(60)->post('https://api.groq.com/openai/v1/chat/completions', [
             'model' => $this->model,
 
             'messages' => [
                 [
                     'role'    => 'system',
-                    'content' => 'You are a helpful AI assistant for admin dashboard.'
+                    'content' => $systemPrompt
                 ],
                 [
                     'role'    => 'user',
@@ -58,8 +59,8 @@ class GroqAiService
                 ]
             ],
 
-            'temperature' => 0.7,
-            'max_tokens'  => 1024,
+            'temperature' => 0.2,
+            'max_tokens'  => $maxTokens,
         ]);
 
 

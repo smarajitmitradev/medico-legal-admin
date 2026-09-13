@@ -13,7 +13,11 @@ class ModuleController extends Controller
      */
     public function show($id)
     {
-        $content = ModuleContent::with('sub.management')->find($id);
+        // $content = ModuleContent::with('sub.management')->find($id);
+        $content = ModuleContent::with('sub.management')
+        ->where('submanagement_id', $id)
+        ->latest('created_at')
+        ->first();
 
         if (!$content) {
             return response()->json([

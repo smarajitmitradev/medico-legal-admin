@@ -11,6 +11,8 @@ use League\CommonMark\CommonMarkConverter;
 use Illuminate\Database\QueryException;
 use Exception;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
+use App\Helpers\ImageHelper;
 
 class ModuleController extends Controller
 {
@@ -145,8 +147,10 @@ class ModuleController extends Controller
 
             // Thumbnail Upload
             if ($request->hasFile('thumbnail')) {
-                $module->thumbnail = $request->file('thumbnail')
-                    ->store('thumbnails', 'public');
+                $module->thumbnail = ImageHelper::compressToTargetSize(
+                    $request->file('thumbnail'),
+                    'thumbnails'
+                );
             }
 
             $module->save();
@@ -166,7 +170,10 @@ class ModuleController extends Controller
             'image' => 'required|image|max:2048'
         ]);
 
-        $path = $request->file('image')->store('editor-images', 'public');
+        $path = ImageHelper::compressToRatio(
+            $request->file('image'),
+            'editor-images'
+        );
 
         return response()->json([
             'url' => asset('storage/' . $path)
@@ -259,7 +266,10 @@ class ModuleController extends Controller
                     Storage::disk('public')->delete($module->thumbnail);
                 }
 
-                $thumbnailPath = $request->file('thumbnail')->store('thumbnails', 'public');
+                $thumbnailPath = ImageHelper::compressToTargetSize(
+                    $request->file('thumbnail'),
+                    'thumbnails'
+                );
 
                 $module->update([
                     'thumbnail' => $thumbnailPath

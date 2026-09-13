@@ -13,6 +13,7 @@ use App\Http\Controllers\Frontend\UserPageController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\AiChatController;
 use App\Http\Controllers\Admin\SubscriptionController;
+use App\Http\Controllers\Admin\FileToHtmlController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,6 +68,11 @@ Route::prefix('admin')->group(function () {
             ->name('admin.avatar.update');
         Route::post('/admin/ai-chat/send', [AiChatController::class, 'send'])
             ->name('admin.ai.chat.send');
+
+            
+
+        Route::post('/admin/convert-to-html', [FileToHtmlController::class, 'convert'])
+            ->name('convert.tohtml');
 
 
         Route::prefix('module/{sub_slug}')->group(function () {
