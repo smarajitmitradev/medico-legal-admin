@@ -11,7 +11,8 @@ class ModuleController extends Controller
     /**
      * Get single content with submanagement & management
      */
-    
+
+     
     public function show($id)
     {
         // $content = ModuleContent::with('sub.management')->find($id);
