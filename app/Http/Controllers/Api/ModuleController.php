@@ -18,8 +18,8 @@ class ModuleController extends Controller
         // $content = ModuleContent::with('sub.management')->find($id);
         $content = ModuleContent::with('sub.management')
         ->where('submanagement_id', $id)
-        ->latest('created_at')
-        ->first();
+        ->orderBy('created_at', 'desc')
+        ->get();
 
         if (!$content) {
             return response()->json([
