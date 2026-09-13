@@ -13,6 +13,7 @@ class ModuleController extends Controller
      */
 
      
+     
     public function show($id)
     {
         // $content = ModuleContent::with('sub.management')->find($id);
