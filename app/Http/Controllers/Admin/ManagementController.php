@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ImageHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Management;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class ManagementController extends Controller
 
     public function store(Request $request)
     {
-        
+
         $validator = Validator::make($request->all(), [
             'name'  => 'required|unique:managements,name',
             'icon'  => 'required|string',
@@ -48,8 +49,7 @@ class ManagementController extends Controller
         $imageName = null;
 
         if ($request->hasFile('image')) {
-            $imageName = time() . '_' . $request->image->getClientOriginalName();
-            $request->image->move(public_path('uploads'), $imageName);
+            $imageName = ImageHelper::compressToPublicPath($request->image, 'uploads');
         }
 
         Management::create([
@@ -59,7 +59,7 @@ class ManagementController extends Controller
             'image' => $imageName
         ]);
 
-        
+
         return response()->json([
             'status'  => true,
             'message' => 'Management created successfully!'
@@ -95,13 +95,13 @@ class ManagementController extends Controller
 
         while (
             Management::where('slug', $slug)
-                ->where('id', '!=', $id)
-                ->exists()
+            ->where('id', '!=', $id)
+            ->exists()
         ) {
             $slug = $original . '-' . $count++;
         }
 
-    
+
         $imageName = $management->image;
 
         if ($request->hasFile('image')) {
@@ -111,9 +111,8 @@ class ManagementController extends Controller
                 unlink(public_path('uploads/' . $management->image));
             }
 
-            // Upload new image
-            $imageName = time() . '_' . $request->image->getClientOriginalName();
-            $request->image->move(public_path('uploads'), $imageName);
+            // Upload new (compressed) image
+            $imageName = ImageHelper::compressToPublicPath($request->image, 'uploads');
         }
 
         $management->update([
@@ -134,8 +133,8 @@ class ManagementController extends Controller
         $management = Management::findOrFail($id);
 
         // Delete image if exists
-        if($management->image && file_exists(public_path('uploads/'.$management->image))){
-            unlink(public_path('uploads/'.$management->image));
+        if ($management->image && file_exists(public_path('uploads/' . $management->image))) {
+            unlink(public_path('uploads/' . $management->image));
         }
 
         $management->delete();

@@ -81,6 +81,16 @@
                     <label>Summary</label>
                     <textarea name="summary" placeholder="Enter Summary" class="form-control" rows="2"></textarea>
                 </div>
+                <div class="mb-3">
+                    <label>Convert File to HTML</label>
+                    <div class="d-flex gap-2 align-items-center">
+                        <input type="file" id="htmlSourceFile" class="form-control" accept=".txt,.md,.csv,.json,.html,.htm,.pdf,.docx">
+                        <button type="button" id="convertToHtmlBtn" class="btn btn-custom" style="white-space:nowrap;">
+                            Convert & Insert
+                        </button>
+                    </div>
+                    <small id="convertStatus" class="text-muted"></small>
+                </div>
 
                 <div class="mb-3">
                     <label>Description</label>
@@ -221,8 +231,52 @@
             this.submit();
         });
 
+        // ✅ Convert-to-HTML logic now shares the same scope as `editor`
+        document.getElementById('convertToHtmlBtn').addEventListener('click', async function() {
+            const fileInput = document.getElementById('htmlSourceFile');
+            const status = document.getElementById('convertStatus');
+            const btn = this;
+
+            if (!fileInput.files.length) {
+                status.textContent = 'Please choose a file first.';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            btn.disabled = true;
+            btn.textContent = 'Converting...';
+            status.textContent = '';
+
+            try {
+                const res = await fetch("{{ route('convert.tohtml') }}", {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': "{{ csrf_token() }}" },
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    status.textContent = data.error || 'Conversion failed.';
+                    return;
+                }
+
+                editor.insertText(data.html); // ✅ works now — same closure as `editor`
+                status.textContent = 'Inserted successfully.';
+
+            } catch (err) {
+                status.textContent = 'Error: ' + err.message;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Convert & Insert';
+            }
+        });
+
     });
 </script>
+
 <script>
     document.getElementById('thumbnail').addEventListener('change', function(e) {
 
@@ -246,5 +300,6 @@
         }
     });
 </script>
+
 
 @endsection
