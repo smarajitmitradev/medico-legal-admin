@@ -39,17 +39,17 @@ class SubManagementController extends Controller
             });
         }
 
-        // ✅ Cursor logic (reversed for latest-first paging)
+        // ✅ Cursor logic
         if ($cursor) {
             $decoded = json_decode(base64_decode($cursor), true);
 
             if (isset($decoded['id'])) {
-                $query->where('id', '<', $decoded['id']);
+                $query->where('id', '>', $decoded['id']);
             }
         }
 
-        // ✅ Fetch data — latest first
-        $contents = $query->orderBy('id', 'desc')
+        // ✅ Fetch data
+        $contents = $query->orderBy('id')
             ->limit($limit + 1)
             ->get();
 
@@ -66,6 +66,7 @@ class SubManagementController extends Controller
                 'id' => $last->id
             ]));
         }
+        // dd(optional($contents));
 
         // ✅ Format response
         $data = $contents->map(function ($item) {
@@ -79,6 +80,11 @@ class SubManagementController extends Controller
                 'summary' => $item->summary,
                 'content_in_detail' => $item->markdown_content,
                 'reading_time_in_munites' => $item->reading_time,
+                // 'thumbnail' => null,
+                // Thumbnail URL
+                // 'thumbnail' => $item->thumbnail
+                //     ? asset('storage/' . $item->thumbnail)
+                //     : asset('img/dummy-thumb-nil.png'),
                 'thumbnail' => $item->thumbnail
                     ? asset('storage/' . $item->thumbnail)
                     : null,
