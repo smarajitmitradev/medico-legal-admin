@@ -17,7 +17,7 @@ class ModuleController extends Controller
     public function show($id)
     {
         $contents = ModuleContent::with('sub.management')
-            ->where('id', $id)
+            ->where('submanagement_id', $id)
             ->orderBy('created_at', 'desc')
             ->get();
 
